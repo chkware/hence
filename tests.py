@@ -56,6 +56,55 @@ class TestTask:
 
         ChildTask()
 
+    @staticmethod
+    def test__create_task__pass_with_steps_set():
+        """test create_task pass with steps set"""
+
+        class ChildTask(AbstractTask):
+            """ChildTask"""
+
+            def execute(self) -> None:
+                """ChildTask.__init__"""
+
+                super().execute()
+
+        class ImplementedStep(AbstractStep):
+            def __call__(self):
+                print("ImplementedStep.__call__")
+
+        ct = ChildTask(
+            [
+                ImplementedStep(),
+                ImplementedStep(),
+            ]
+        )
+
+        assert isinstance(ct, ChildTask)
+
+    @staticmethod
+    def test__create_task__fail_when_wrong_step_set():
+        """test create_task fail when wrong step set"""
+
+        class ChildTask(AbstractTask):
+            """ChildTask"""
+
+            def execute(self) -> None:
+                """ChildTask.__init__"""
+
+                super().execute()
+
+        class ImplementedStep(AbstractStep):
+            def __call__(self):
+                print("ImplementedStep.__call__")
+
+        with pytest.raises(TypeError):
+            ChildTask(
+                [
+                    ImplementedStep(),
+                    map,
+                ]
+            )
+
 
 class TestStep:
     """TestStep"""
@@ -78,3 +127,17 @@ class TestStep:
                 """ChildStep.__init__"""
 
         ChildStep()
+
+    @staticmethod
+    def test__create_step__pass_when_executed(capsys):
+        """test create_step pass when executed"""
+
+        class ImplementedStep(AbstractStep):
+            def __call__(self):
+                print("ImplementedStep.__call__")
+
+        iss = ImplementedStep()
+        iss()
+
+        out, _ = capsys.readouterr()
+        assert out.strip() == "ImplementedStep.__call__"
