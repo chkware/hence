@@ -29,7 +29,9 @@ class TestWorkflow:
 
                 super().execute()
 
-        ChildWorkflow()
+        cw = ChildWorkflow()
+
+        assert cw._name == "ChildWorkflow"
 
 
 class TestTask:
@@ -80,6 +82,7 @@ class TestTask:
         )
 
         assert isinstance(ct, ChildTask)
+        assert ct._name == "ChildTask"
 
     @staticmethod
     def test__create_task__fail_when_wrong_step_set():
@@ -140,4 +143,6 @@ class TestStep:
         iss()
 
         out, _ = capsys.readouterr()
+
         assert out.strip() == "ImplementedStep.__call__"
+        assert iss._name == "ImplementedStep"
