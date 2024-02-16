@@ -19,3 +19,11 @@ class AbstractTask(abc.ABC):
     @abc.abstractmethod
     def execute(self):
         "execute"
+
+
+class AbstractStep(abc.ABC):
+    """Base step type"""
+
+    @abc.abstractmethod
+    def __call__(self):
+        "execute"

@@ -4,7 +4,7 @@ Hench tests
 
 import pytest
 
-from hence import AbstractWorkflow, AbstractTask
+from hence import AbstractWorkflow, AbstractTask, AbstractStep
 
 
 class TestWorkflow:
@@ -55,3 +55,26 @@ class TestTask:
                 super().execute()
 
         ChildTask()
+
+
+class TestStep:
+    """TestStep"""
+
+    @staticmethod
+    def test__create_step__fails_for_abstractstep():
+        """test create_Step fails for AbstractStep"""
+
+        with pytest.raises(TypeError):
+            AbstractStep()
+
+    @staticmethod
+    def test__create_step__pass_for_child_step():
+        """test create_Step pass for child Step"""
+
+        class ChildStep(AbstractStep):
+            """ChildStep"""
+
+            def __call__(self) -> None:
+                """ChildStep.__init__"""
+
+        ChildStep()
