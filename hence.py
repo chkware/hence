@@ -11,3 +11,11 @@ class AbstractWorkflow(abc.ABC):
     @abc.abstractmethod
     def execute(self):
         "execute"
+
+
+class AbstractTask(abc.ABC):
+    """Base task type"""
+
+    @abc.abstractmethod
+    def execute(self):
+        "execute"
