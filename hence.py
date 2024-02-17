@@ -59,7 +59,7 @@ class Task:
         """Execute a task"""
 
 
-class AbstractWorkflow(abc.ABC):
+class Workflow:
     """Base workflow type"""
 
     def __init__(self) -> None:
@@ -67,6 +67,6 @@ class AbstractWorkflow(abc.ABC):
 
         self._name = type(self).__name__
 
-    @abc.abstractmethod
+    @typing.final
     def execute(self):
         """Execute a workflow"""
