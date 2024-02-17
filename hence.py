@@ -86,17 +86,34 @@ class WorkGroup(DagExecutor):
         return self._works if self._works else []
 
 
-class Workflow:
+class Workflow(DagExecutor):
     """Base workflow type"""
 
-    def __init__(self) -> None:
+    def __init__(self, work_groups: list[WorkGroup] = None) -> None:
         """Constructor"""
+
+        super().__init__()
 
         self._name = type(self).__name__
 
-    @typing.final
-    def execute(self):
-        """Execute a workflow"""
+        self._work_groups: list[WorkGroup] = (
+            work_groups if work_groups and self.__validate(work_groups) else []
+        )
+
+        self.setup_dag()
+
+    @property
+    def vertices(self) -> list[WorkGroup]:
+        return self._work_groups if self._work_groups else []
+
+    @staticmethod
+    def __validate(work_groups: list[WorkGroup]) -> bool:
+        """Validate tasks are ok"""
+
+        if not all([isinstance(work_group, WorkGroup) for work_group in work_groups]):
+            raise TypeError("Unsupported workgroup found.")
+
+        return True
 
 
 class LinearExecutor:
@@ -112,5 +129,7 @@ class LinearExecutor:
 
         if isinstance(work, AbstractWork) and callable(work):
             return work()
+        elif isinstance(work, WorkGroup):
+            return work.execute_dag()
         else:
             raise TypeError(f"Incorrect type of `work`: {type(work)} found.")
