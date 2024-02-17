@@ -108,6 +108,41 @@ class TestTask:
                 ]
             )
 
+    @staticmethod
+    def test__create_task__pass_for_dag_creation():
+        """test create_task pass for dag creation"""
+
+        class ChildTask(AbstractTask):
+            """ChildTask"""
+
+            def execute(self) -> None:
+                """ChildTask.__init__"""
+
+                super().execute()
+
+        class ImplementedStep1(AbstractStep):
+            def __call__(self):
+                print("ImplementedStep1.__call__")
+
+        class ImplementedStep2(AbstractStep):
+            def __call__(self):
+                print("ImplementedStep2.__call__")
+
+        class ImplementedStep3(AbstractStep):
+            def __call__(self):
+                print("ImplementedStep3.__call__")
+
+        ct = ChildTask(
+            [
+                ImplementedStep1(),
+                ImplementedStep2(),
+                ImplementedStep3(),
+            ]
+        )
+
+        assert ct._dag.vertex_size() == 3
+        assert ct._dag.edge_size() == 2
+
 
 class TestStep:
     """TestStep"""

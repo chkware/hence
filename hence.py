@@ -4,6 +4,8 @@ Hench
 
 import abc
 
+from paradag import DAG
+
 
 class AbstractStep(abc.ABC):
     """Base step type"""
@@ -27,17 +29,29 @@ class AbstractTask(abc.ABC):
         """Constructor"""
 
         self._name = type(self).__name__
+        self._dag = DAG()
 
         self._steps: list[AbstractStep] = (
             steps if steps and self.__validate(steps) else []
         )
 
+        self.__setup_dag()
+
     @staticmethod
     def __validate(steps: list[AbstractStep]) -> bool:
+        """Validate steps are ok"""
+
         if not all([isinstance(step, AbstractStep) for step in steps]):
             raise TypeError("Unsupported step found.")
 
         return True
+
+    def __setup_dag(self) -> bool:
+        """Setup DAG"""
+        self._dag.add_vertex(*self._steps)
+
+        for index in range(1, len(self._steps)):
+            self._dag.add_edge(self._steps[index - 1], self._steps[index])
 
     @abc.abstractmethod
     def execute(self):
