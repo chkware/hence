@@ -8,8 +8,8 @@ import typing
 from paradag import DAG, SequentialProcessor, dag_run
 
 
-class AbstractStep(abc.ABC):
-    """Base step type"""
+class AbstractWork(abc.ABC):
+    """Base work type"""
 
     def __init__(self) -> None:
         """Constructor"""
@@ -20,7 +20,7 @@ class AbstractStep(abc.ABC):
     def __call__(self):
         "Force implement function"
 
-        raise NotImplementedError("Step.__call__ not implemented.")
+        raise NotImplementedError("__call__ not implemented.")
 
 
 class DagExecutor:
@@ -56,34 +56,34 @@ class DagExecutor:
         return resp
 
 
-class Task(DagExecutor):
-    """Base task type"""
+class WorkGroup(DagExecutor):
+    """Collection of Work"""
 
-    def __init__(self, steps: list[AbstractStep] = None) -> None:
+    def __init__(self, works: list[AbstractWork] = None) -> None:
         """Constructor"""
 
         super().__init__()
 
         self._name = type(self).__name__
 
-        self._steps: list[AbstractStep] = (
-            steps if steps and self.__validate(steps) else []
+        self._works: list[AbstractWork] = (
+            works if works and self.__validate(works) else []
         )
 
         self.setup_dag()
 
     @staticmethod
-    def __validate(steps: list[AbstractStep]) -> bool:
-        """Validate steps are ok"""
+    def __validate(works: list[AbstractWork]) -> bool:
+        """Validate works are ok"""
 
-        if not all([isinstance(step, AbstractStep) for step in steps]):
-            raise TypeError("Unsupported step found.")
+        if not all([isinstance(work, AbstractWork) for work in works]):
+            raise TypeError("Unsupported work found.")
 
         return True
 
     @property
-    def vertices(self) -> list[AbstractStep]:
-        return self._steps if self._steps else []
+    def vertices(self) -> list[AbstractWork]:
+        return self._works if self._works else []
 
 
 class Workflow:
@@ -107,10 +107,10 @@ class LinearExecutor:
 
         return vertex
 
-    def execute(self, step: typing.Any) -> typing.Any:
+    def execute(self, work: typing.Any) -> typing.Any:
         """Execute"""
 
-        if isinstance(step, AbstractStep):
-            return step()
+        if isinstance(work, AbstractWork) and callable(work):
+            return work()
         else:
-            raise TypeError(f"Incorrect type of `step`: {type(step)} found.")
+            raise TypeError(f"Incorrect type of `work`: {type(work)} found.")

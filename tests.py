@@ -4,7 +4,7 @@ Hench tests
 
 import pytest
 
-from hence import Workflow, Task, AbstractStep
+from hence import Workflow, WorkGroup, AbstractWork
 
 
 class TestWorkflow:
@@ -19,142 +19,157 @@ class TestWorkflow:
         assert cw._name == "Workflow"
 
 
-class TestTask:
+class TestWorkGroup:
     """TestTask"""
 
     @staticmethod
-    def test__create_task__pass_with_steps_set():
-        """test create_task pass with steps set"""
+    def test__create_wg__pass_with_steps_set():
+        """test create work group pass with steps set"""
 
-        class ImplementedStep(AbstractStep):
+        class ImplementedWork(AbstractWork):
+            """ImplementedWork"""
+
             def __call__(self):
-                print("ImplementedStep.__call__")
+                print(type(self).__name__)
 
-        ct = Task(
+        wg = WorkGroup(
             [
-                ImplementedStep(),
-                ImplementedStep(),
+                ImplementedWork(),
+                ImplementedWork(),
             ]
         )
 
-        assert isinstance(ct, Task)
-        assert ct._name == "Task"
+        assert isinstance(wg, WorkGroup)
+        assert wg._name == "WorkGroup"
 
     @staticmethod
-    def test__create_task__fail_when_wrong_step_set():
-        """test create_task fail when wrong step set"""
+    def test__create_wg__fail_when_wrong_step_set():
+        """test create work group fail when wrong step set"""
 
-        class ImplementedStep(AbstractStep):
+        class ImplementedWork(AbstractWork):
+            """ImplementedWork"""
+
             def __call__(self):
-                print("ImplementedStep.__call__")
+                print(type(self).__name__)
 
         with pytest.raises(TypeError):
-            Task(
+            WorkGroup(
                 [
-                    ImplementedStep(),
+                    ImplementedWork(),
                     map,
                 ]
             )
 
     @staticmethod
-    def test__create_task__pass_for_dag_creation():
-        """test create_task pass for dag creation"""
+    def test__create_wg__pass_for_dag_creation():
+        """test create work group pass for dag creation"""
 
-        class ImplementedStep1(AbstractStep):
+        class ImplementedWork1(AbstractWork):
+            """ImplementedWork1"""
+
             def __call__(self):
-                print("ImplementedStep1.__call__")
+                print(type(self).__name__)
 
-        class ImplementedStep2(AbstractStep):
+        class ImplementedWork2(AbstractWork):
+            """ImplementedWork2"""
+
             def __call__(self):
-                print("ImplementedStep2.__call__")
+                print(type(self).__name__)
 
-        class ImplementedStep3(AbstractStep):
+        class ImplementedWork3(AbstractWork):
+            """ImplementedWork3"""
+
             def __call__(self):
-                print("ImplementedStep3.__call__")
+                print(type(self).__name__)
 
-        ct = Task(
+        wg = WorkGroup(
             [
-                ImplementedStep1(),
-                ImplementedStep2(),
-                ImplementedStep3(),
+                ImplementedWork1(),
+                ImplementedWork2(),
+                ImplementedWork3(),
             ]
         )
 
-        assert ct._dag.vertex_size() == 3
-        assert ct._dag.edge_size() == 2
+        assert wg._dag.vertex_size() == 3
+        assert wg._dag.edge_size() == 2
 
 
-class TestTaskExecute:
-    """TestTaskExecute"""
+class TestWorkGroupExecute:
+    """TestWorkGroupExecute"""
 
     @staticmethod
-    def test__execute_task__pass_when_steps_are_right(capsys):
+    def test__execute_wg__pass_when_steps_are_right(capsys):
         """test create_task pass for dag creation"""
 
-        class ImplementedStep1(AbstractStep):
-            def __call__(self):
-                print("ImplementedStep1.__call__")
+        class ImplementedWork1(AbstractWork):
+            """ImplementedWork1"""
 
-        class ImplementedStep2(AbstractStep):
             def __call__(self):
-                print("ImplementedStep2.__call__")
+                print(type(self).__name__)
 
-        class ImplementedStep3(AbstractStep):
+        class ImplementedWork2(AbstractWork):
+            """ImplementedWork2"""
+
             def __call__(self):
-                print("ImplementedStep3.__call__")
+                print(type(self).__name__)
 
-        ct = Task(
+        class ImplementedWork3(AbstractWork):
+            """ImplementedWork3"""
+
+            def __call__(self):
+                print(type(self).__name__)
+
+        wg = WorkGroup(
             [
-                ImplementedStep1(),
-                ImplementedStep2(),
-                ImplementedStep3(),
+                ImplementedWork1(),
+                ImplementedWork2(),
+                ImplementedWork3(),
             ]
         )
 
-        resp = ct.execute_dag()
+        resp = wg.execute_dag()
         out, _ = capsys.readouterr()
 
-        assert (
-            out
-            == "ImplementedStep1.__call__\nImplementedStep2.__call__\nImplementedStep3.__call__\n"
-        )
+        assert out == "ImplementedWork1\nImplementedWork2\nImplementedWork3\n"
         assert len(resp) == 3
 
 
-class TestStep:
+class TestWork:
     """TestStep"""
 
     @staticmethod
-    def test__create_step__fails_for_abstractstep():
-        """test create_Step fails for AbstractStep"""
+    def test__create_work__fails_for_abstract_work():
+        """test create_Step fails for AbstractWork"""
 
         with pytest.raises(TypeError):
-            AbstractStep()
+            AbstractWork()
 
     @staticmethod
-    def test__create_step__pass_for_child_step():
+    def test__create_work__pass_for_child_step():
         """test create_Step pass for child Step"""
 
-        class ChildStep(AbstractStep):
-            """ChildStep"""
+        class ChildWork(AbstractWork):
+            """ChildWork"""
 
             def __call__(self) -> None:
-                """ChildStep.__init__"""
+                """ChildWork.__init__"""
 
-        ChildStep()
+        ChildWork()
 
     @staticmethod
-    def test__create_step__pass_when_executed(capsys):
+    def test__create_work__pass_when_executed(capsys):
         """test create_step pass when executed"""
 
-        class ImplementedStep(AbstractStep):
-            def __call__(self):
-                print("ImplementedStep.__call__")
+        class ImplementedWork(AbstractWork):
+            """ImplementedWork"""
 
-        iss = ImplementedStep()
-        iss()
+            def __call__(self):
+                print(type(self).__name__)
+
+        iw = ImplementedWork()
+        iw()
 
         out, _ = capsys.readouterr()
 
-        assert out.strip() == "ImplementedStep.__call__"
-        assert iss._name == "ImplementedStep"
+        assert out.strip() == "ImplementedWork"
+        assert iw._name == "ImplementedWork"
