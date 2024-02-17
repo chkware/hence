@@ -4,7 +4,7 @@ Hench tests
 
 import pytest
 
-from hence import AbstractWorkflow, AbstractTask, AbstractStep
+from hence import AbstractWorkflow, Task, AbstractStep
 
 
 class TestWorkflow:
@@ -38,70 +38,33 @@ class TestTask:
     """TestTask"""
 
     @staticmethod
-    def test__create_task__fails_for_abstracttask():
-        """test create_Task fails for AbstractTask"""
-
-        with pytest.raises(TypeError):
-            AbstractTask()
-
-    @staticmethod
-    def test__create_task__pass_for_child_task():
-        """test create_Task pass for child Task"""
-
-        class ChildTask(AbstractTask):
-            """ChildTask"""
-
-            def execute(self) -> None:
-                """ChildTask.__init__"""
-
-                super().execute()
-
-        ChildTask()
-
-    @staticmethod
     def test__create_task__pass_with_steps_set():
         """test create_task pass with steps set"""
-
-        class ChildTask(AbstractTask):
-            """ChildTask"""
-
-            def execute(self) -> None:
-                """ChildTask.__init__"""
-
-                super().execute()
 
         class ImplementedStep(AbstractStep):
             def __call__(self):
                 print("ImplementedStep.__call__")
 
-        ct = ChildTask(
+        ct = Task(
             [
                 ImplementedStep(),
                 ImplementedStep(),
             ]
         )
 
-        assert isinstance(ct, ChildTask)
-        assert ct._name == "ChildTask"
+        assert isinstance(ct, Task)
+        assert ct._name == "Task"
 
     @staticmethod
     def test__create_task__fail_when_wrong_step_set():
         """test create_task fail when wrong step set"""
-
-        class ChildTask(AbstractTask):
-            """ChildTask"""
-
-            def execute(self) -> None:
-                """ChildTask.__init__"""
-
-                super().execute()
 
         class ImplementedStep(AbstractStep):
             def __call__(self):
                 print("ImplementedStep.__call__")
 
         with pytest.raises(TypeError):
-            ChildTask(
+            Task(
                 [
                     ImplementedStep(),
                     map,
@@ -111,14 +74,6 @@ class TestTask:
     @staticmethod
     def test__create_task__pass_for_dag_creation():
         """test create_task pass for dag creation"""
-
-        class ChildTask(AbstractTask):
-            """ChildTask"""
-
-            def execute(self) -> None:
-                """ChildTask.__init__"""
-
-                super().execute()
 
         class ImplementedStep1(AbstractStep):
             def __call__(self):
@@ -132,7 +87,7 @@ class TestTask:
             def __call__(self):
                 print("ImplementedStep3.__call__")
 
-        ct = ChildTask(
+        ct = Task(
             [
                 ImplementedStep1(),
                 ImplementedStep2(),

@@ -3,6 +3,7 @@ Hench
 """
 
 import abc
+import typing
 
 from paradag import DAG
 
@@ -22,7 +23,7 @@ class AbstractStep(abc.ABC):
         raise NotImplementedError("Step.__call__ not implemented.")
 
 
-class AbstractTask(abc.ABC):
+class Task:
     """Base task type"""
 
     def __init__(self, steps: list[AbstractStep] = None) -> None:
@@ -53,7 +54,7 @@ class AbstractTask(abc.ABC):
         for index in range(1, len(self._steps)):
             self._dag.add_edge(self._steps[index - 1], self._steps[index])
 
-    @abc.abstractmethod
+    @typing.final
     def execute(self):
         """Execute a task"""
 
