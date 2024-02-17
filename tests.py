@@ -84,6 +84,43 @@ class TestTask:
         assert ct._dag.edge_size() == 2
 
 
+class TestTaskExecute:
+    """TestTaskExecute"""
+
+    @staticmethod
+    def test__execute_task__pass_when_steps_are_right(capsys):
+        """test create_task pass for dag creation"""
+
+        class ImplementedStep1(AbstractStep):
+            def __call__(self):
+                print("ImplementedStep1.__call__")
+
+        class ImplementedStep2(AbstractStep):
+            def __call__(self):
+                print("ImplementedStep2.__call__")
+
+        class ImplementedStep3(AbstractStep):
+            def __call__(self):
+                print("ImplementedStep3.__call__")
+
+        ct = Task(
+            [
+                ImplementedStep1(),
+                ImplementedStep2(),
+                ImplementedStep3(),
+            ]
+        )
+
+        resp = ct.execute()
+        out, _ = capsys.readouterr()
+
+        assert (
+            out
+            == "ImplementedStep1.__call__\nImplementedStep2.__call__\nImplementedStep3.__call__\n"
+        )
+        assert len(resp) == 3
+
+
 class TestStep:
     """TestStep"""
 

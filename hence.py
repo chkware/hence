@@ -5,7 +5,7 @@ Hench
 import abc
 import typing
 
-from paradag import DAG
+from paradag import DAG, SequentialProcessor, dag_run
 
 
 class AbstractStep(abc.ABC):
@@ -58,6 +58,12 @@ class Task:
     def execute(self):
         """Execute a task"""
 
+        resp = dag_run(
+            self._dag, processor=SequentialProcessor(), executor=LinearExecutor()
+        )
+
+        return resp
+
 
 class Workflow:
     """Base workflow type"""
@@ -70,3 +76,20 @@ class Workflow:
     @typing.final
     def execute(self):
         """Execute a workflow"""
+
+
+class LinearExecutor:
+    """Linear executor"""
+
+    def param(self, vertex: typing.Any) -> typing.Any:
+        """Selecting parameters"""
+
+        return vertex
+
+    def execute(self, step: typing.Any) -> typing.Any:
+        """Execute"""
+
+        if isinstance(step, AbstractStep):
+            return step()
+        else:
+            raise TypeError(f"Incorrect type of `step`: {type(step)} found.")
