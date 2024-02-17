@@ -111,7 +111,7 @@ class TestTaskExecute:
             ]
         )
 
-        resp = ct.execute()
+        resp = ct.execute_dag()
         out, _ = capsys.readouterr()
 
         assert (
