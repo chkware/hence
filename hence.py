@@ -3,9 +3,81 @@ Hench
 """
 
 import abc
-import typing
+from collections import UserDict
+from contextvars import ContextVar
+import functools
+from typing import Any, Callable, NamedTuple, final
 
 from paradag import DAG, SequentialProcessor, dag_run
+
+
+class WorkExecFrame(NamedTuple):
+    """WorkFrame holds what goes inside works"""
+
+    work: Callable = lambda: ...
+    work_exec_output: Any = None
+
+
+class ContextValues(UserDict):
+    """ContextValues"""
+
+
+context: ContextVar[ContextValues] = ContextVar(
+    "context", default=ContextValues({"works": []})
+)
+
+
+def get_context(ctx=context):
+    """get context"""
+
+    return ctx
+
+
+def get_works(ctx=context):
+    """get_works"""
+
+    if "works" in ctx:
+        return ctx["works"]
+
+    raise RuntimeError("Misconfigured context.")
+
+
+def work(
+    title,
+    pass_work: bool = False,
+    pass_works: bool = False,
+    pass_context: bool = False,
+    before: Callable = lambda: ...,
+    after: Callable = lambda: ...,
+):
+    """work"""
+
+    def inner(func):
+        """inner"""
+
+        functools.wraps(func)
+
+        def decorator(*args, **kwargs):
+            """decorator"""
+
+            kwargs["__before__"] = before()
+
+            if pass_work:
+                kwargs["__work__"] = "pass_work"
+
+            if pass_works:
+                kwargs["__works__"] = "pass_works"
+
+            if pass_context:
+                kwargs["__context__"] = "pass_context"
+
+            print(title, pass_work, pass_works, args, kwargs)
+            func(*args, **kwargs)
+            after()
+
+        return decorator
+
+    return inner
 
 
 class AbstractWork(abc.ABC):
@@ -33,10 +105,10 @@ class DagExecutor:
 
     @property
     @abc.abstractproperty
-    def vertices(self) -> list[typing.Any]:
+    def vertices(self) -> list[Any]:
         """Get unit_of_works"""
 
-    @typing.final
+    @final
     def setup_dag(self) -> bool:
         """Setup DAG"""
 
@@ -45,12 +117,14 @@ class DagExecutor:
         for index in range(1, len(self.vertices)):
             self._dag.add_edge(self.vertices[index - 1], self.vertices[index])
 
-    @typing.final
-    def execute_dag(self) -> list[typing.Any]:
+    @final
+    def execute_dag(self) -> list[Any]:
         """Execute the dag"""
 
         resp = dag_run(
-            self._dag, processor=SequentialProcessor(), executor=LinearExecutor()
+            self._dag,
+            processor=SequentialProcessor(),
+            executor=LinearExecutor(),
         )
 
         return resp
@@ -119,12 +193,12 @@ class Workflow(DagExecutor):
 class LinearExecutor:
     """Linear executor"""
 
-    def param(self, vertex: typing.Any) -> typing.Any:
+    def param(self, vertex: Any) -> Any:
         """Selecting parameters"""
 
         return vertex
 
-    def execute(self, work: typing.Any) -> typing.Any:
+    def execute(self, work: Any) -> Any:
         """Execute"""
 
         if isinstance(work, AbstractWork) and callable(work):
