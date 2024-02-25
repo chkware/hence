@@ -181,10 +181,10 @@ class Workflow(DagExecutor):
         return self._work_groups if self._work_groups else []
 
     @staticmethod
-    def __validate(work_groups: list[WorkGroup]) -> bool:
+    def __validate(wgs: list[WorkGroup]) -> bool:
         """Validate tasks are ok"""
 
-        if not all([isinstance(work_group, WorkGroup) for work_group in work_groups]):
+        if not all([isinstance(wg, WorkGroup) for wg in wgs]):
             raise TypeError("Unsupported workgroup found.")
 
         return True
