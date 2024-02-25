@@ -14,7 +14,7 @@ from paradag import DAG, SequentialProcessor, dag_run
 class WorkExecFrame(NamedTuple):
     """WorkFrame holds what goes inside works"""
 
-    work: Callable = lambda: ...
+    work_func: Callable = lambda: ...
     work_exec_output: Any = None
 
 
@@ -198,12 +198,12 @@ class LinearExecutor:
 
         return vertex
 
-    def execute(self, work: Any) -> Any:
+    def execute(self, work_fn: AbstractWork | WorkGroup) -> Any:
         """Execute"""
 
-        if isinstance(work, AbstractWork) and callable(work):
-            return work()
-        elif isinstance(work, WorkGroup):
-            return work.execute_dag()
+        if isinstance(work_fn, AbstractWork) and callable(work_fn):
+            return work_fn()
+        elif isinstance(work_fn, WorkGroup):
+            return work_fn.execute_dag()
         else:
-            raise TypeError(f"Incorrect type of `work`: {type(work)} found.")
+            raise TypeError(f"Incorrect type of `work` {type(work_fn)} found.")
