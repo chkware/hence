@@ -60,18 +60,18 @@ def work(
         def decorator(*args, **kwargs):
             """decorator"""
 
-            kwargs["__before__"] = before()
+            if "kwargs" in func.__code__.co_varnames:
+                kwargs["__before__"] = before()
 
-            if pass_work:
-                kwargs["__work__"] = "pass_work"
+                if pass_work:
+                    kwargs["__work__"] = "pass_work"
 
-            if pass_works:
-                kwargs["__works__"] = "pass_works"
+                if pass_works:
+                    kwargs["__works__"] = "pass_works"
 
-            if pass_context:
-                kwargs["__context__"] = "pass_context"
+                if pass_context:
+                    kwargs["__context__"] = "pass_context"
 
-            print(title, pass_work, pass_works, args, kwargs)
             func(*args, **kwargs)
             after()
 
