@@ -4,7 +4,6 @@ Hench
 
 import abc
 from collections import UserDict
-from contextvars import ContextVar
 import functools
 from typing import Any, Callable, NamedTuple, final
 
@@ -41,8 +40,6 @@ class WorkList(UserList):
             return value
         raise TypeError(f"WorkExecFrame expected, got {type(value).__name__}")
 
-class ContextValues(UserDict):
-    """ContextValues"""
     @classmethod
     def from_works(cls, work_lst: list[AbstractWork]) -> WorkList:
         """create WorkList from a list of AbstractWork"""
@@ -53,25 +50,6 @@ class ContextValues(UserDict):
                 for work in work_lst
             ]
         )
-
-context: ContextVar[ContextValues] = ContextVar(
-    "context", default=ContextValues({"works": []})
-)
-
-
-def get_context(ctx=context):
-    """get context"""
-
-    return ctx
-
-
-def get_works(ctx=context):
-    """get_works"""
-
-    if "works" in ctx:
-        return ctx["works"]
-
-    raise RuntimeError("Misconfigured context.")
 
 
 def work(
