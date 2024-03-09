@@ -17,7 +17,7 @@ class TestWorkGroup:
         class ImplementedWork(AbstractWork):
             """ImplementedWork"""
 
-            def handle(self):
+            def handle(self, **kwargs):
                 print(type(self).__name__)
 
         wg = WorkGroup(
@@ -37,7 +37,7 @@ class TestWorkGroup:
         class ImplementedWork(AbstractWork):
             """ImplementedWork"""
 
-            def handle(self):
+            def handle(self, **kwargs):
                 print(type(self).__name__)
 
         with pytest.raises(TypeError):
@@ -55,19 +55,19 @@ class TestWorkGroup:
         class ImplementedWork1(AbstractWork):
             """ImplementedWork1"""
 
-            def handle(self):
+            def handle(self, **kwargs):
                 print(type(self).__name__)
 
         class ImplementedWork2(AbstractWork):
             """ImplementedWork2"""
 
-            def handle(self):
+            def handle(self, **kwargs):
                 print(type(self).__name__)
 
         class ImplementedWork3(AbstractWork):
             """ImplementedWork3"""
 
-            def handle(self):
+            def handle(self, **kwargs):
                 print(type(self).__name__)
 
         wg = WorkGroup(
@@ -92,19 +92,19 @@ class TestWorkGroupExecute:
         class ImplementedWork1(AbstractWork):
             """ImplementedWork1"""
 
-            def handle(self):
+            def handle(self, **kwargs):
                 print(type(self).__name__)
 
         class ImplementedWork2(AbstractWork):
             """ImplementedWork2"""
 
-            def handle(self):
+            def handle(self, **kwargs):
                 print(type(self).__name__)
 
         class ImplementedWork3(AbstractWork):
             """ImplementedWork3"""
 
-            def handle(self):
+            def handle(self, **kwargs):
                 print(type(self).__name__)
 
         wg = WorkGroup(
