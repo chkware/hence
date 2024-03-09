@@ -89,10 +89,10 @@ class AbstractWork(abc.ABC):
         self._name = type(self).__name__
 
     @abc.abstractmethod
-    def __call__(self):
+    def handle(self):
         "Force implement function"
 
-        raise NotImplementedError("__call__ not implemented.")
+        raise NotImplementedError("handle not implemented.")
 
 
 class DagExecutor:
@@ -201,8 +201,8 @@ class LinearExecutor:
     def execute(self, work_fn: AbstractWork | WorkGroup) -> Any:
         """Execute"""
 
-        if isinstance(work_fn, AbstractWork) and callable(work_fn):
-            return work_fn()
+        if isinstance(work_fn, AbstractWork):
+            return work_fn.handle()
         elif isinstance(work_fn, WorkGroup):
             return work_fn.execute_dag()
         else:

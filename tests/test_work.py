@@ -24,7 +24,7 @@ class TestWork:
         class ChildWork(AbstractWork):
             """ChildWork"""
 
-            def __call__(self) -> None:
+            def handle(self) -> None:
                 """ChildWork.__init__"""
 
         ChildWork()
@@ -36,11 +36,11 @@ class TestWork:
         class ImplementedWork(AbstractWork):
             """ImplementedWork"""
 
-            def __call__(self):
+            def handle(self):
                 print(type(self).__name__)
 
         iw = ImplementedWork()
-        iw()
+        iw.handle()
 
         out, _ = capsys.readouterr()
 
