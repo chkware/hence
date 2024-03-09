@@ -27,7 +27,7 @@ class TestWorkFlowExecute:
         class ImplementedWork(AbstractWork):
             """ImplementedWork"""
 
-            def handle(self):
+            def handle(self, **kwargs):
                 print(type(self).__name__)
 
         wf = Workflow([WorkGroup([ImplementedWork()])])
@@ -66,25 +66,25 @@ class TestWorkFlowExecute:
         class ImplementedWork1(AbstractWork):
             """ImplementedWork1"""
 
-            def handle(self):
+            def handle(self, **kwargs):
                 print(1)
 
         class ImplementedWork2(AbstractWork):
             """ImplementedWork2"""
 
-            def handle(self):
+            def handle(self, **kwargs):
                 print(2)
 
         class ImplementedWork3(AbstractWork):
             """ImplementedWork3"""
 
-            def handle(self):
+            def handle(self, **kwargs):
                 print(3)
 
         class ImplementedWork4(AbstractWork):
             """ImplementedWork4"""
 
-            def handle(self):
+            def handle(self, **kwargs):
                 print(4)
 
         wf = Workflow(
