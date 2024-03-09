@@ -89,7 +89,7 @@ class AbstractWork(abc.ABC):
         self._name = type(self).__name__
 
     @abc.abstractmethod
-    def handle(self):
+    def handle(self, **kwargs):
         "Force implement function"
 
         raise NotImplementedError("handle not implemented.")
