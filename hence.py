@@ -209,8 +209,8 @@ class LinearExecutor:
     def execute(self, work_fn: AbstractWork | WorkGroup) -> Any:
         """Execute"""
 
-        if isinstance(work_fn, AbstractWork):
-            return work_fn.handle()
+        if isinstance(work_fn, WorkExecFrame):
+            return work_fn.function.handle()
         elif isinstance(work_fn, WorkGroup):
             return work_fn.execute_dag()
         else:
