@@ -4,7 +4,7 @@ Tests for workgroup
 
 import pytest
 
-from hence import WorkGroup, AbstractWork
+from hence import AbstractWork, WorkGroup, WorkList, WorkExecFrame
 
 
 class TestWorkGroup:
@@ -120,3 +120,49 @@ class TestWorkGroupExecute:
 
         assert out == "ImplementedWork1\nImplementedWork2\nImplementedWork3\n"
         assert len(resp) == 3
+
+
+class TestWorkList:
+    """TestWorkList"""
+
+    @staticmethod
+    def test__from_works__pass():
+        """test__new__pass"""
+
+        class ImplementedWork(AbstractWork):
+            """ImplementedWork"""
+
+            def handle(self, **kwargs):
+                print(type(self).__name__)
+
+        wl = WorkList.from_works(
+            [
+                ImplementedWork(),
+                ImplementedWork(),
+                ImplementedWork(),
+            ]
+        )
+
+        assert isinstance(wl, WorkList)
+        assert all(isinstance(item, WorkExecFrame) for item in wl)
+
+    @staticmethod
+    def test__from_works__fails_for_callable():
+        """test__from_works__fails_for_callable"""
+
+        with pytest.raises(TypeError):
+            WorkList(
+                [
+                    map,
+                    map,
+                    map,
+                ]
+            )
+
+    @staticmethod
+    def test__set_item__fails_for_callable():
+        """test__from_works__fails_for_callable"""
+
+        with pytest.raises(TypeError):
+            wl = WorkList()
+            wl[1] = map

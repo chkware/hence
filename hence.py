@@ -16,11 +16,43 @@ class WorkExecFrame(NamedTuple):
 
     work_func: Callable = lambda: ...
     work_exec_output: Any = None
+class WorkList(UserList):
+    """WorkList"""
 
+    def __init__(self, iterable: list = None):
+        """Create"""
+        if iterable is None:
+            iterable = []
+
+        super().__init__(self._validate_type(item) for item in iterable)
+
+    def __setitem__(self, index, item):
+        """Overload set [] to support setting"""
+
+        super().__setitem__(index, self._validate_type(item))
+
+    def append(self, item):
+        """Overload append to support append"""
+
+        super().append(self._validate_type(item))
+
+    def _validate_type(self, value):
+        if isinstance(value, (WorkExecFrame)):
+            return value
+        raise TypeError(f"WorkExecFrame expected, got {type(value).__name__}")
 
 class ContextValues(UserDict):
     """ContextValues"""
+    @classmethod
+    def from_works(cls, work_lst: list[AbstractWork]) -> WorkList:
+        """create WorkList from a list of AbstractWork"""
 
+        return cls(
+            [
+                WorkExecFrame(title=type(work).__name__, function=work)
+                for work in work_lst
+            ]
+        )
 
 context: ContextVar[ContextValues] = ContextVar(
     "context", default=ContextValues({"works": []})
