@@ -2,8 +2,9 @@
 Hench
 """
 
+from __future__ import annotations
 import abc
-from collections import UserDict
+from collections import UserList
 import functools
 from typing import Any, Callable, NamedTuple, final
 
@@ -38,11 +39,14 @@ class WorkList(UserList):
     def _validate_type(self, value):
         if isinstance(value, (WorkExecFrame)):
             return value
-        raise TypeError(f"WorkExecFrame expected, got {type(value).__name__}")
+        raise TypeError(f"WorkExecFrame expected, got {type(value).__name__}.")
 
     @classmethod
     def from_works(cls, work_lst: list[AbstractWork]) -> WorkList:
         """create WorkList from a list of AbstractWork"""
+
+        if not all([isinstance(work, AbstractWork) for work in work_lst]):
+            raise TypeError("Unsupported work found. AbstractWork expected.")
 
         return cls(
             [
