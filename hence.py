@@ -143,31 +143,25 @@ class DagExecutor:
 class WorkGroup(DagExecutor):
     """Collection of Work"""
 
-    def __init__(self, works: list[AbstractWork] = None) -> None:
+    def __init__(self, works: list[AbstractWork] | WorkList = None) -> None:
         """Constructor"""
 
         super().__init__()
 
         self._name = type(self).__name__
 
-        self._works: list[AbstractWork] = (
-            works if works and self.__validate(works) else []
+        if not isinstance(works, list):
+            raise TypeError("Type mismatch for `works`.")
+
+        self._works: WorkList = (
+            works if isinstance(works, WorkList) else WorkList.from_works(works)
         )
 
         self.setup_dag()
 
-    @staticmethod
-    def __validate(works: list[AbstractWork]) -> bool:
-        """Validate works are ok"""
-
-        if not all([isinstance(work, AbstractWork) for work in works]):
-            raise TypeError("Unsupported work found.")
-
-        return True
-
     @property
-    def vertices(self) -> list[AbstractWork]:
-        return self._works if self._works else []
+    def vertices(self) -> WorkList:
+        return self._works if self._works else WorkList()
 
 
 class Workflow(DagExecutor):
