@@ -49,6 +49,43 @@ class TestWorkGroup:
             )
 
     @staticmethod
+    def test__create_wg__pass_with_work_list_params(capsys):
+        """test create work group fail when wrong step set"""
+
+        class ImplementedWork(AbstractWork):
+            """ImplementedWork"""
+
+            def __call__(self, **kwargs):
+                print(type(self).__name__)
+                print(";".join([f"{key}={val}" for key, val in kwargs.items()]))
+
+        wg = WorkGroup(
+            WorkList(
+                [
+                    WorkExecFrame(
+                        "ImplementedWork",
+                        ImplementedWork(),
+                        {"param1": 1, "param2": "ab"},
+                    ),
+                    WorkExecFrame(
+                        "ImplementedWork",
+                        ImplementedWork(),
+                        {"param1": 2, "param2": "bc"},
+                    ),
+                ]
+            )
+        )
+
+        wg.execute_dag()
+
+        out, _ = capsys.readouterr()
+
+        assert (
+            out
+            == "ImplementedWork\nparam1=1;param2=ab\nImplementedWork\nparam1=2;param2=bc\n"
+        )
+
+    @staticmethod
     def test__create_wg__pass_for_dag_creation():
         """test create work group pass for dag creation"""
 
