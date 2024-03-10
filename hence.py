@@ -3,7 +3,7 @@ Hench
 """
 
 from __future__ import annotations
-import abc
+from abc import ABC, abstractmethod, abstractproperty
 from collections import UserList
 import functools
 from typing import Any, Callable, NamedTuple, final
@@ -94,7 +94,7 @@ def work(
     return inner
 
 
-class AbstractWork(abc.ABC):
+class AbstractWork(ABC):
     """Base work type"""
 
     def __init__(self) -> None:
@@ -102,7 +102,7 @@ class AbstractWork(abc.ABC):
 
         self._name = type(self).__name__
 
-    @abc.abstractmethod
+    @abstractmethod
     def handle(self, **kwargs):
         "Force implement function"
 
@@ -118,7 +118,7 @@ class DagExecutor:
         self._dag = DAG()
 
     @property
-    @abc.abstractproperty
+    @abstractproperty
     def vertices(self) -> list[Any]:
         """Get unit_of_works"""
 
