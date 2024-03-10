@@ -1,164 +1,105 @@
 """Work context test"""
 
 from contextvars import ContextVar
+import inspect
 
-# import inspect
+import pytest
 
-from hence import ContextHandler, ContextValues
-
-
-class TestContextHandlerSanity:
-    """TestContextHandlerSanity"""
-
-    @staticmethod
-    def test_create_pass_for_empty_object():
-        """test create passes"""
-
-        ctx_handler = ContextHandler()
-
-        assert isinstance(ctx_handler._context, ContextVar)
-        assert ctx_handler._token is None
-
-    @staticmethod
-    def test_create_pass_for_same_session():
-        """test_create_pass_for_same_session"""
-
-        ctx_handler_1 = ContextHandler()
-        ctx_handler_2 = ContextHandler()
-
-        assert ctx_handler_1._token is ctx_handler_2._token
-        assert ctx_handler_1 is not ctx_handler_2
-
-    @staticmethod
-    def test_create_pass_for_setting_and_getting_from_same_ctx():
-        """
-        test create pass for setting and getting from same context session
-        """
-
-        ctx_handler_1 = ContextHandler()
-        ctx = ctx_handler_1.get_context()
-
-        a = ContextValues({"works": []})
-        ctx.set()
-
-        ctx_handler_2 = ContextHandler()
+from hence import WorkList, WorkExecFrame, work
 
 
-class TestContextHandlerGetContext:
-    """TestContextHandlerGetContext"""
-
-    @staticmethod
-    def test__get_context__pass():
-        """test__get_context__pass"""
-
-        chx = ContextHandler()
-
-        ctx = chx.get_context()
-        ctxvar = ctx.get()
-
-        assert isinstance(ctx, ContextVar)
-        assert isinstance(ctxvar, ContextValues)
-        assert "works" in ctxvar
+@pytest.fixture
+def make_context():
+    """make and return a context"""
+    return ContextVar("context", default=WorkList())
 
 
-# from contextvars import ContextVar
-# import inspect
+# class TestWorkDecorator:
+#     """TestWorkDecorator"""
 
-# from hence import ContextValues, get_context, work
+#     @staticmethod
+#     def test__works_dec__pass_for_no_arg(capsys):
+#         """test__set_works__pass"""
 
+#         @work("task one")
+#         def task_one():
+#             print(inspect.currentframe().f_code.co_name)
 
-# def test__get_context__pass():
-#     """test__get_context__pass"""
+#         task_one()
+#         out, _ = capsys.readouterr()
+#         assert out.strip() == "task_one"
 
-#     ctx = get_context()
-#     ctxvar = ctx.get()
+#     @staticmethod
+#     def test__works_dec__pass_for_passed_params(capsys):
+#         """test__set_works__pass"""
 
-#     assert isinstance(ctx, ContextVar)
-#     assert isinstance(ctxvar, ContextValues)
-#     assert "works" in ctxvar
+#         @work("task one")
+#         def task_one(ae, af):
+#             print(ae, af)
 
+#         task_one(1, 2)
+#         out, _ = capsys.readouterr()
+#         assert out.strip() == "1 2"
 
-# def test__works_dec__pass_for_no_arg(capsys):
-#     """test__set_works__pass"""
+#     @staticmethod
+#     def test__works_dec__pass_for_passed_named_params_cap_before(capsys):
+#         """test__set_works__pass"""
 
-#     @work("task one")
-#     def task_one():
-#         print(inspect.currentframe().f_code.co_name)
+#         @work("task one")
+#         def task_one(ae, af, **kwargs):
+#             print(ae, af, kwargs)
 
-#     task_one()
-#     out, _ = capsys.readouterr()
-#     assert out.strip() == "task_one"
+#         task_one(1, 2)
+#         out, _ = capsys.readouterr()
+#         assert out.strip() == "1 2 {'__before__': Ellipsis}"
 
+#     @staticmethod
+#     def test__works_dec__pass_for_passed_named_params_cap_vars(capsys):
+#         """test__set_works__pass"""
 
-# def test__works_dec__pass_for_passed_params(capsys):
-#     """test__set_works__pass"""
+#         def before_():
+#             return "before_"
 
-#     @work("task one")
-#     def task_one(ae, af):
-#         print(ae, af)
+#         @work("task one", before=before_)
+#         def task_one(ae, af, **kwargs):
+#             print(ae, af, kwargs)
 
-#     task_one(1, 2)
-#     out, _ = capsys.readouterr()
-#     assert out.strip() == "1 2"
+#         task_one(1, 2, a=1)
+#         out, _ = capsys.readouterr()
+#         assert out.strip() == "1 2 {'a': 1, '__before__': 'before_'}"
 
+#     @staticmethod
+#     def test__works_dec__pass_for_passed_named_params_cap_vars_args(capsys):
+#         """test__set_works__pass"""
 
-# def test__works_dec__pass_for_passed_named_params_cap_before(capsys):
-#     """test__set_works__pass"""
+#         def before_():
+#             return "before_"
 
-#     @work("task one")
-#     def task_one(ae, af, **kwargs):
-#         print(ae, af, kwargs)
+#         @work("task one", before=before_)
+#         def task_one(ae, af, *args, a=2, **kwargs):
+#             print(ae, af, args, a, kwargs)
 
-#     task_one(1, 2)
-#     out, _ = capsys.readouterr()
-#     assert out.strip() == "1 2 {'__before__': Ellipsis}"
+#         task_one(1, 2, 3, 4, 5, a=1)
+#         out, _ = capsys.readouterr()
+#         assert out.strip() == "1 2 (3, 4, 5) 1 {'__before__': 'before_'}"
 
+#     @staticmethod
+#     def test__works_dec__pass_for_passed_params_cap_vars_args(capsys):
+#         """test__set_works__pass"""
 
-# def test__works_dec__pass_for_passed_named_params_cap_vars(capsys):
-#     """test__set_works__pass"""
+#         def before_():
+#             return "before_"
 
-#     def before_():
-#         return "before_"
+#         @work("task one", before=before_)
+#         def task_one(*args, **kwargs):
+#             print(args, kwargs)
 
-#     @work("task one", before=before_)
-#     def task_one(ae, af, **kwargs):
-#         print(ae, af, kwargs)
-
-#     task_one(1, 2, a=1)
-#     out, _ = capsys.readouterr()
-#     assert out.strip() == "1 2 {'a': 1, '__before__': 'before_'}"
-
-
-# def test__works_dec__pass_for_passed_named_params_cap_vars_args(capsys):
-#     """test__set_works__pass"""
-
-#     def before_():
-#         return "before_"
-
-#     @work("task one", before=before_)
-#     def task_one(ae, af, *args, a=2, **kwargs):
-#         print(ae, af, args, a, kwargs)
-
-#     task_one(1, 2, 3, 4, 5, a=1)
-#     out, _ = capsys.readouterr()
-#     assert out.strip() == "1 2 (3, 4, 5) 1 {'__before__': 'before_'}"
-
-
-# def test__works_dec__pass_for_passed_params_cap_vars_args(capsys):
-#     """test__set_works__pass"""
-
-#     def before_():
-#         return "before_"
-
-#     @work("task one", before=before_)
-#     def task_one(*args, **kwargs):
-#         print(args, kwargs)
-
-#     task_one(1, 2, 3, 4, 5, a=1, bun="js")
-#     out, _ = capsys.readouterr()
-#     assert (
-#         out.strip() == "(1, 2, 3, 4, 5) {'a': 1, 'bun': 'js', '__before__': 'before_'}"
-#     )
+#         task_one(1, 2, 3, 4, 5, a=1, bun="js")
+#         out, _ = capsys.readouterr()
+#         assert (
+#             out.strip()
+#             == "(1, 2, 3, 4, 5) {'a': 1, 'bun': 'js', '__before__': 'before_'}"
+#         )
 
 
 # setup @work
