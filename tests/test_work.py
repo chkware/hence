@@ -24,7 +24,7 @@ class TestWork:
         class ChildWork(AbstractWork):
             """ChildWork"""
 
-            def handle(self, **kwargs) -> None:
+            def __call__(self, **kwargs) -> None:
                 """ChildWork.handle"""
 
         ChildWork()
@@ -36,13 +36,12 @@ class TestWork:
         class ImplementedWork(AbstractWork):
             """ImplementedWork"""
 
-            def handle(self, **kwargs):
-                """ImplementedWork.handle"""
+            def __call__(self, **kwargs):
                 print(type(self).__name__)
                 print(";".join([f"{key}={val}" for key, val in kwargs.items()]))
 
         iw = ImplementedWork()
-        iw.handle(row=1, column=2)
+        iw(row=1, column=2)
 
         out, _ = capsys.readouterr()
 

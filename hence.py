@@ -88,13 +88,13 @@ class WorkList(UserList):
     def from_works(cls, work_lst: list[AbstractWork]) -> WorkList:
         """create WorkList from a list of AbstractWork"""
 
-        if not all([isinstance(work, AbstractWork) for work in work_lst]):
+        if not all([isinstance(__work, AbstractWork) for __work in work_lst]):
             raise TypeError("Unsupported work found. AbstractWork expected.")
 
         return cls(
             [
-                WorkExecFrame(title=type(work).__name__, function=work.handle)
-                for work in work_lst
+                WorkExecFrame(title=type(__work).__name__, function=__work)
+                for __work in work_lst
             ]
         )
 
@@ -146,10 +146,10 @@ class AbstractWork(ABC):
         self._name = type(self).__name__
 
     @abstractmethod
-    def handle(self, **kwargs):
+    def __call__(self, **kwargs):
         "Force implement function"
 
-        raise NotImplementedError("handle not implemented.")
+        raise NotImplementedError("Not a callable. __call__ not implemented.")
 
 
 class DagExecutor:
@@ -249,12 +249,12 @@ class LinearExecutor:
 
         return vertex
 
-    def execute(self, work_fn: AbstractWork | WorkGroup) -> Any:
+    def execute(self, __work: WorkExecFrame | WorkGroup) -> Any:
         """Execute"""
 
-        if isinstance(work_fn, WorkExecFrame):
-            return work_fn.function()
-        elif isinstance(work_fn, WorkGroup):
-            return work_fn.execute_dag()
+        if isinstance(__work, WorkExecFrame) and callable(__work.function):
+            return __work.function()
+        elif isinstance(__work, WorkGroup):
+            return __work.execute_dag()
         else:
-            raise TypeError(f"Incorrect type of `work` {type(work_fn)} found.")
+            raise TypeError(f"Incorrect type of `work` {type(__work)} found.")
