@@ -6,16 +6,59 @@ from __future__ import annotations
 from abc import ABC, abstractmethod, abstractproperty
 from collections import UserList
 import functools
-from typing import Any, Callable, NamedTuple, final
+from json import loads, dumps
+from typing import Any, Callable, Optional, final
 
 from paradag import DAG, SequentialProcessor, dag_run
 
 
-class WorkExecFrame(NamedTuple):
+class WorkExecFrame:
     """WorkFrame holds what goes inside works"""
 
-    work_func: Callable = lambda: ...
-    work_exec_output: Any = None
+    def __init__(
+        self,
+        title: str = "",
+        function: Callable = lambda: ...,
+        function_params: Optional[dict] = None,
+    ) -> None:
+        """Create WorkExecFrame"""
+
+        if not isinstance(title, str):
+            raise TypeError("String value expected for title.")
+
+        self._title: str = title
+
+        if not isinstance(function, Callable):
+            raise TypeError("Function must be a callable.")
+
+        self._function: Callable = function
+
+        if function_params and not isinstance(function_params, dict):
+            raise TypeError("Function params must be a dict.")
+
+        self._function_params: str = dumps(function_params if function_params else {})
+
+        self._function_out: str = dumps({})
+
+    @property
+    def function(self) -> Callable:
+        """get the function"""
+
+        return self._function
+
+    @property
+    def function_params(self) -> dict:
+        """get the function"""
+
+        return loads(self._function_params)
+
+    @property
+    def function_out(self) -> dict:
+        """get the function output"""
+
+        return loads(self._function_out)
+
+
 class WorkList(UserList):
     """WorkList"""
 
