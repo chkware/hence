@@ -5,7 +5,7 @@ Hench
 from __future__ import annotations
 from abc import ABC, abstractmethod, abstractproperty
 from collections import UserList
-import functools
+from functools import wraps
 from json import loads, dumps
 from typing import Any, Callable, Optional, final
 
@@ -100,10 +100,6 @@ class WorkList(UserList):
 
 
 def work(
-    title,
-    pass_work: bool = False,
-    pass_works: bool = False,
-    pass_context: bool = False,
     before: Callable = lambda: ...,
     after: Callable = lambda: ...,
 ):
@@ -112,24 +108,17 @@ def work(
     def inner(func):
         """inner"""
 
-        functools.wraps(func)
-
-        def decorator(*args, **kwargs):
+        @wraps(func)
+        def decorator(**kwargs):
             """decorator"""
 
-            if "kwargs" in func.__code__.co_varnames:
-                kwargs["__before__"] = before()
+            kwargs["__before__"] = before()
 
-                if pass_work:
-                    kwargs["__work__"] = "pass_work"
+            # kwargs["__works__"] = "pass_works"
+            # kwargs["__context__"] = "pass_context"
 
-                if pass_works:
-                    kwargs["__works__"] = "pass_works"
+            func(**kwargs)
 
-                if pass_context:
-                    kwargs["__context__"] = "pass_context"
-
-            func(*args, **kwargs)
             after()
 
         return decorator
