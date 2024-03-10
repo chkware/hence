@@ -50,7 +50,7 @@ class WorkList(UserList):
 
         return cls(
             [
-                WorkExecFrame(title=type(work).__name__, function=work)
+                WorkExecFrame(title=type(work).__name__, function=work.handle)
                 for work in work_lst
             ]
         )
@@ -154,7 +154,7 @@ class WorkGroup(DagExecutor):
 
         self._name = type(self).__name__
 
-        if not isinstance(works, list):
+        if not isinstance(works, list) and not isinstance(works, WorkList):
             raise TypeError("Type mismatch for `works`.")
 
         self._works: WorkList = (
@@ -210,7 +210,7 @@ class LinearExecutor:
         """Execute"""
 
         if isinstance(work_fn, WorkExecFrame):
-            return work_fn.function.handle()
+            return work_fn.function()
         elif isinstance(work_fn, WorkGroup):
             return work_fn.execute_dag()
         else:
