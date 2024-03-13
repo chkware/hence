@@ -164,7 +164,7 @@ class TestWorkList:
 
     @staticmethod
     def test__from_works__pass():
-        """test__new__pass"""
+        """test__from_works__pass"""
 
         class ImplementedWork(AbstractWork):
             """ImplementedWork"""
@@ -182,6 +182,23 @@ class TestWorkList:
 
         assert isinstance(wl, WorkList)
         assert all(isinstance(item, WorkExecFrame) for item in wl)
+
+    @staticmethod
+    def test__from_works__fail_for_missing_kwargs():
+        """test__from_works__fail_for_missing_kwargs"""
+
+        class ImplementedWork(AbstractWork):
+            """ImplementedWork"""
+
+            def __call__(self):
+                print(type(self).__name__)
+
+        with pytest.raises(TypeError):
+            WorkList.from_works(
+                [
+                    ImplementedWork(),
+                ]
+            )
 
     @staticmethod
     def test__from_works__fails_for_callable():

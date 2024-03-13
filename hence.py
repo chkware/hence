@@ -91,6 +91,15 @@ class WorkList(UserList):
         if not all([isinstance(__work, AbstractWork) for __work in work_lst]):
             raise TypeError("Unsupported work found. AbstractWork expected.")
 
+        for __work in work_lst:
+            if (
+                isinstance(__work, AbstractWork)
+                and "kwargs" not in __work.__call__.__code__.co_varnames
+            ):
+                raise TypeError(
+                    f"Missing {type(__work).__name__}.__call__(..., **kwargs)."
+                )
+
         return cls(
             [
                 WorkExecFrame(title=type(__work).__name__, function=__work)
