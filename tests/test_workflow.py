@@ -2,7 +2,7 @@
 Hench tests Workflow
 """
 
-from hence import Workflow, WorkGroup, AbstractWork
+from hence import WorkList, Workflow, WorkGroup, AbstractWork, WorkExecFrame
 
 
 class TestWorkflow:
@@ -30,7 +30,9 @@ class TestWorkFlowExecute:
             def __call__(self, **kwargs):
                 print(type(self).__name__)
 
-        wf = Workflow([WorkGroup([ImplementedWork()])])
+        wf = Workflow(
+            [WorkGroup(WorkList([WorkExecFrame(function=ImplementedWork())]))]
+        )
 
         wf.execute_dag()
 
@@ -41,7 +43,7 @@ class TestWorkFlowExecute:
     def test__wf_execute_pass__when_wg_empty(capsys):
         """test__wf_execute_pass__when_wg_empty"""
 
-        wf = Workflow([WorkGroup([])])
+        wf = Workflow([WorkGroup(WorkList())])
 
         wf.execute_dag()
 
@@ -87,20 +89,18 @@ class TestWorkFlowExecute:
             def __call__(self, **kwargs):
                 print(4)
 
+        wl1 = WorkList()
+        wl1.append(WorkExecFrame(function=ImplementedWork1()))
+        wl1.append(WorkExecFrame(function=ImplementedWork2()))
+
+        wl2 = WorkList()
+        wl2.append(WorkExecFrame(function=ImplementedWork3()))
+        wl2.append(WorkExecFrame(function=ImplementedWork4()))
+
         wf = Workflow(
             [
-                WorkGroup(
-                    [
-                        ImplementedWork1(),
-                        ImplementedWork2(),
-                    ]
-                ),
-                WorkGroup(
-                    [
-                        ImplementedWork3(),
-                        ImplementedWork4(),
-                    ]
-                ),
+                WorkGroup(wl1),
+                WorkGroup(wl2),
             ]
         )
 

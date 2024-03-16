@@ -4,7 +4,7 @@ Tests for workgroup
 
 import pytest
 
-from hence import AbstractWork, WorkGroup, WorkList, WorkExecFrame
+from hence import AbstractWork, WorkGroup, WorkList, WorkExecFrame, work
 
 
 class TestWorkGroup:
@@ -20,14 +20,11 @@ class TestWorkGroup:
             def __call__(self, **kwargs):
                 print(type(self).__name__)
 
-        wg = WorkGroup(
-            WorkList.from_works(
-                [
-                    ImplementedWork(),
-                    ImplementedWork(),
-                ]
-            )
-        )
+        wl = WorkList()
+        wl.append(WorkExecFrame(function=ImplementedWork()))
+        wl.append(WorkExecFrame(function=ImplementedWork()))
+
+        wg = WorkGroup(wl)
 
         assert isinstance(wg, WorkGroup)
         assert wg._name == "WorkGroup"
@@ -109,15 +106,13 @@ class TestWorkGroup:
             def __call__(self, **kwargs):
                 print(type(self).__name__)
 
-        wg = WorkGroup(
-            WorkList.from_works(
-                [
-                    ImplementedWork1(),
-                    ImplementedWork2(),
-                    ImplementedWork3(),
-                ]
-            )
-        )
+        wl = WorkList()
+
+        wl.append(WorkExecFrame(function=ImplementedWork1()))
+        wl.append(WorkExecFrame(function=ImplementedWork2()))
+        wl.append(WorkExecFrame(function=ImplementedWork3()))
+
+        wg = WorkGroup(wl)
 
         assert wg._dag.vertex_size() == 3
         assert wg._dag.edge_size() == 2
@@ -148,15 +143,13 @@ class TestWorkGroupExecute:
             def __call__(self, **kwargs):
                 print(type(self).__name__)
 
-        wg = WorkGroup(
-            WorkList.from_works(
-                [
-                    ImplementedWork1(),
-                    ImplementedWork2(),
-                    ImplementedWork3(),
-                ]
-            )
-        )
+        wl = WorkList()
+
+        wl.append(WorkExecFrame(function=ImplementedWork1()))
+        wl.append(WorkExecFrame(function=ImplementedWork2()))
+        wl.append(WorkExecFrame(function=ImplementedWork3()))
+
+        wg = WorkGroup(WorkList(wl))
 
         resp = wg.execute_dag()
         out, _ = capsys.readouterr()
@@ -169,7 +162,7 @@ class TestWorkList:
     """TestWorkList"""
 
     @staticmethod
-    def test__from_works__pass():
+    def test___validate_type__pass():
         """test__from_works__pass"""
 
         class ImplementedWork(AbstractWork):
@@ -178,20 +171,18 @@ class TestWorkList:
             def __call__(self, **kwargs):
                 print(type(self).__name__)
 
-        wl = WorkList.from_works(
-            [
-                ImplementedWork(),
-                ImplementedWork(),
-                ImplementedWork(),
-            ]
-        )
+        wl = WorkList()
+
+        wl.append(WorkExecFrame(function=ImplementedWork()))
+        wl.append(WorkExecFrame(function=ImplementedWork()))
+        wl.append(WorkExecFrame(function=ImplementedWork()))
 
         assert isinstance(wl, WorkList)
         assert all(isinstance(item, WorkExecFrame) for item in wl)
 
     @staticmethod
-    def test__from_works__fail_for_missing_kwargs():
-        """test__from_works__fail_for_missing_kwargs"""
+    def test___validate_type__fail_for_abstractwork_missing_kwargs():
+        """test___validate_type__fail_for_abstractwork_missing_kwargs"""
 
         class ImplementedWork(AbstractWork):
             """ImplementedWork"""
@@ -199,15 +190,13 @@ class TestWorkList:
             def __call__(self):
                 print(type(self).__name__)
 
+        wl = WorkList()
+
         with pytest.raises(TypeError):
-            WorkList.from_works(
-                [
-                    ImplementedWork(),
-                ]
-            )
+            wl.append(WorkExecFrame(function=ImplementedWork()))
 
     @staticmethod
-    def test__from_works__fails_for_callable():
+    def test___validate_type__fails_for_callable():
         """test__from_works__fails_for_callable"""
 
         with pytest.raises(TypeError):
@@ -220,7 +209,29 @@ class TestWorkList:
             )
 
     @staticmethod
-    def test__set_item__fails_for_callable():
+    def test___validate_type__passes_for_work_callable(capsys):
+        """test__from_work_dec__passes_for_work_callable"""
+
+        @work()
+        def print_s(string, **kwargs):
+            print(string)
+
+        wl = WorkList()
+        wl.append(
+            WorkExecFrame(
+                function=print_s, function_params={"string": print_s.__name__}
+            )
+        )
+
+        wg = WorkGroup(wl)
+
+        wg.execute_dag()
+        out, _ = capsys.readouterr()
+
+        assert out == "print_s\n"
+
+    @staticmethod
+    def test__validate_type__fails_on_assignment_for_callable():
         """test__from_works__fails_for_callable"""
 
         with pytest.raises(TypeError):

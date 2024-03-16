@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod, abstractproperty
 from collections import UserList
 from functools import wraps
 from json import loads, dumps
+from types import FunctionType
 from typing import Any, Callable, Optional, final
 
 from paradag import DAG, SequentialProcessor, dag_run
@@ -80,32 +81,31 @@ class WorkList(UserList):
         super().append(self._validate_type(item))
 
     def _validate_type(self, value):
-        if isinstance(value, (WorkExecFrame)):
-            return value
-        raise TypeError(f"WorkExecFrame expected, got {type(value).__name__}.")
+        """Validate values before setting"""
 
-    @classmethod
-    def from_works(cls, work_lst: list[AbstractWork]) -> WorkList:
-        """create WorkList from a list of AbstractWork"""
+        if not isinstance(value, (WorkExecFrame)):
+            raise TypeError(f"WorkExecFrame expected, got {type(value).__name__}.")
 
-        if not all([isinstance(__work, AbstractWork) for __work in work_lst]):
-            raise TypeError("Unsupported work found. AbstractWork expected.")
+        if not isinstance(value.function, (AbstractWork, FunctionType)):
+            raise TypeError(
+                f"Function of type AbstractWork or FunctionType expected, got {type(value).__name__}."
+            )
 
-        for __work in work_lst:
-            if (
-                isinstance(__work, AbstractWork)
-                and "kwargs" not in __work.__call__.__code__.co_varnames
-            ):
-                raise TypeError(
-                    f"Missing {type(__work).__name__}.__call__(..., **kwargs)."
-                )
+        if (
+            isinstance(value.function, AbstractWork)
+            and "kwargs" not in value.function.__call__.__code__.co_varnames
+        ):
+            raise TypeError(
+                f"Missing {type(value.function).__name__}.__call__(..., **kwargs)."
+            )
 
-        return cls(
-            [
-                WorkExecFrame(title=type(__work).__name__, function=__work)
-                for __work in work_lst
-            ]
-        )
+        if (
+            isinstance(value.function, FunctionType)
+            and value.function.__code__.co_name != "decorator"
+        ):
+            raise TypeError("Unsupported work found. @work() decorated expected.")
+
+        return value
 
 
 def work(
