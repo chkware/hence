@@ -188,19 +188,17 @@ class DagExecutor:
 class WorkGroup(DagExecutor):
     """Collection of Work"""
 
-    def __init__(self, works: list[AbstractWork] | WorkList = None) -> None:
+    def __init__(self, works: WorkList = None) -> None:
         """Constructor"""
 
         super().__init__()
 
         self._name = type(self).__name__
 
-        if not isinstance(works, list) and not isinstance(works, WorkList):
-            raise TypeError("Type mismatch for `works`.")
+        if not isinstance(works, WorkList):
+            raise TypeError("Type mismatch for `works`. WorkList expected.")
 
-        self._works: WorkList = (
-            works if isinstance(works, WorkList) else WorkList.from_works(works)
-        )
+        self._works: WorkList = works
 
         self.setup_dag()
 

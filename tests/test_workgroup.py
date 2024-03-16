@@ -21,10 +21,12 @@ class TestWorkGroup:
                 print(type(self).__name__)
 
         wg = WorkGroup(
-            [
-                ImplementedWork(),
-                ImplementedWork(),
-            ]
+            WorkList.from_works(
+                [
+                    ImplementedWork(),
+                    ImplementedWork(),
+                ]
+            )
         )
 
         assert isinstance(wg, WorkGroup)
@@ -108,11 +110,13 @@ class TestWorkGroup:
                 print(type(self).__name__)
 
         wg = WorkGroup(
-            [
-                ImplementedWork1(),
-                ImplementedWork2(),
-                ImplementedWork3(),
-            ]
+            WorkList.from_works(
+                [
+                    ImplementedWork1(),
+                    ImplementedWork2(),
+                    ImplementedWork3(),
+                ]
+            )
         )
 
         assert wg._dag.vertex_size() == 3
@@ -145,11 +149,13 @@ class TestWorkGroupExecute:
                 print(type(self).__name__)
 
         wg = WorkGroup(
-            [
-                ImplementedWork1(),
-                ImplementedWork2(),
-                ImplementedWork3(),
-            ]
+            WorkList.from_works(
+                [
+                    ImplementedWork1(),
+                    ImplementedWork2(),
+                    ImplementedWork3(),
+                ]
+            )
         )
 
         resp = wg.execute_dag()
