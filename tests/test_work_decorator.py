@@ -82,25 +82,3 @@ class TestWorkDecorator:
         task_one(ae=1, af=2, g=[3, 4, 5], a=1)
         out, _ = capsys.readouterr()
         assert out.strip() == "1 2 1 {'g': [3, 4, 5], '__before__': 'before_'}"
-
-
-# setup @work
-
-
-# def test__work_set__pass():
-#     """test__work_set__pass"""
-
-#     def before_():
-#         return "before_"
-
-#     @work("task one", before=before_)
-#     def task_one(*args, **kwargs):
-#         print(args, kwargs)
-
-#     task_one(1, 2, 3, 4, 5, a=1, bun="js")
-
-#     #
-#     ctx_val = get_context().get()
-#     print(ctx_val)
-
-#     # ctx_val["works"]

@@ -108,16 +108,3 @@ class TestWorkFlowExecute:
 
         out, _ = capsys.readouterr()
         assert out == "1\n2\n3\n4\n"
-
-
-# def pass_context(): ...
-# def pass_previous_step(): ...
-# def pass_steps(): ...
-# def work(id, before, after): ...
-
-
-# @pass_context
-# @pass_previous_step
-# @pass_steps
-# @work(id, before=..., after=...)
-# def step_function(steps, previous_step, context): ...
