@@ -117,6 +117,9 @@ def work(
     def inner(func):
         """inner"""
 
+        if "kwargs" not in func.__code__.co_varnames:
+            raise TypeError(f"Missing {type(func).__name__}(..., **kwargs).")
+
         @wraps(func)
         def decorator(**kwargs):
             """decorator"""
