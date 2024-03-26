@@ -93,10 +93,10 @@ class WorkList(UserList):
 
         if (
             isinstance(value.function, AbstractWork)
-            and "kwargs" not in value.function.__call__.__code__.co_varnames
+            and "kwargs" not in value.function.__work__.__code__.co_varnames
         ):
             raise TypeError(
-                f"Missing {type(value.function).__name__}.__call__(..., **kwargs)."
+                f"Missing {type(value.function).__name__}.__work__(..., **kwargs)."
             )
 
         if (
@@ -146,11 +146,28 @@ class AbstractWork(ABC):
 
         self._name = type(self).__name__
 
+    def __before__(self) -> Any:
+        """default before impl"""
+
+        return Ellipsis
+
+    def __after__(self) -> Any:
+        """default after impl"""
+
+        return Ellipsis
+
     @abstractmethod
-    def __call__(self, **kwargs):
+    def __work__(self, **kwargs):
         "Force implement function"
 
-        raise NotImplementedError("Not a callable. __call__ not implemented.")
+        raise NotImplementedError("__work__ not implemented.")
+
+    def __call__(self, **kwargs):
+        kwargs["__before__"] = self.__before__()
+        returnable = self.__work__(**kwargs)
+        self.__after__()
+
+        return returnable
 
 
 class DagExecutor:
@@ -191,7 +208,7 @@ class DagExecutor:
 class WorkGroup(DagExecutor):
     """Collection of Work"""
 
-    def __init__(self, works: WorkList = None) -> None:
+    def __init__(self, works: WorkList) -> None:
         """Constructor"""
 
         super().__init__()
@@ -243,6 +260,11 @@ class Workflow(DagExecutor):
 class LinearExecutor:
     """Linear executor"""
 
+    def __init__(self) -> None:
+        """init LinearExecutor"""
+
+        self._results = {}
+
     def param(self, vertex: Any) -> Any:
         """Selecting parameters"""
 
@@ -252,8 +274,16 @@ class LinearExecutor:
         """Execute"""
 
         if isinstance(__work, WorkExecFrame) and callable(__work.function):
+            __work.function_params["__results__"] = self._results
             return __work.function(**__work.function_params)
         elif isinstance(__work, WorkGroup):
             return __work.execute_dag()
         else:
             raise TypeError(f"Incorrect type of `work` {type(__work)} found.")
+
+    def report_finish(self, vertices_result):
+        """After execution finished"""
+
+        for vertex, result in vertices_result:
+            print(type(vertex))
+            self._results[vertex.function.__name__] = result
