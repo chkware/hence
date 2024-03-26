@@ -93,10 +93,10 @@ class WorkList(UserList):
 
         if (
             isinstance(value.function, AbstractWork)
-            and "kwargs" not in value.function.__call__.__code__.co_varnames
+            and "kwargs" not in value.function.__work__.__code__.co_varnames
         ):
             raise TypeError(
-                f"Missing {type(value.function).__name__}.__call__(..., **kwargs)."
+                f"Missing {type(value.function).__name__}.__work__(..., **kwargs)."
             )
 
         if (

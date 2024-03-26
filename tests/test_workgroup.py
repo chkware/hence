@@ -187,7 +187,7 @@ class TestWorkList:
         class ImplementedWork(AbstractWork):
             """ImplementedWork"""
 
-            def __call__(self):
+            def __work__(self):
                 print(type(self).__name__)
 
         wl = WorkList()
