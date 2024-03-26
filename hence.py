@@ -146,11 +146,26 @@ class AbstractWork(ABC):
 
         self._name = type(self).__name__
 
+    def __before__(self) -> Any:
+        """default before impl"""
+
+        return Ellipsis
+
+    def __after__(self) -> Any:
+        """default after impl"""
+
+        return Ellipsis
+
     @abstractmethod
-    def __call__(self, **kwargs):
+    def __work__(self, **kwargs):
         "Force implement function"
 
-        raise NotImplementedError("Not a callable. __call__ not implemented.")
+        raise NotImplementedError("__work__ not implemented.")
+
+    def __call__(self, **kwargs):
+        kwargs["__before__"] = self.__before__()
+        self.__work__(**kwargs)
+        self.__after__()
 
 
 class DagExecutor:

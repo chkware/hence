@@ -24,7 +24,7 @@ class TestWork:
         class ChildWork(AbstractWork):
             """ChildWork"""
 
-            def __call__(self, **kwargs) -> None:
+            def __work__(self, **kwargs) -> None:
                 """ChildWork.handle"""
 
         ChildWork()
@@ -36,7 +36,7 @@ class TestWork:
         class ImplementedWork(AbstractWork):
             """ImplementedWork"""
 
-            def __call__(self, **kwargs):
+            def __work__(self, **kwargs):
                 print(type(self).__name__)
                 print(";".join([f"{key}={val}" for key, val in kwargs.items()]))
 
@@ -45,5 +45,5 @@ class TestWork:
 
         out, _ = capsys.readouterr()
 
-        assert out.strip() == "ImplementedWork\nrow=1;column=2"
+        assert out.strip() == "ImplementedWork\nrow=1;column=2;__before__=Ellipsis"
         assert iw._name == "ImplementedWork"

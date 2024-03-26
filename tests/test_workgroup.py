@@ -17,7 +17,7 @@ class TestWorkGroup:
         class ImplementedWork(AbstractWork):
             """ImplementedWork"""
 
-            def __call__(self, **kwargs):
+            def __work__(self, **kwargs):
                 print(type(self).__name__)
 
         wl = WorkList()
@@ -36,7 +36,7 @@ class TestWorkGroup:
         class ImplementedWork(AbstractWork):
             """ImplementedWork"""
 
-            def __call__(self, **kwargs):
+            def __work__(self, **kwargs):
                 print(type(self).__name__)
 
         with pytest.raises(TypeError):
@@ -54,7 +54,7 @@ class TestWorkGroup:
         class ImplementedWork(AbstractWork):
             """ImplementedWork"""
 
-            def __call__(self, **kwargs):
+            def __work__(self, **kwargs):
                 print(type(self).__name__)
                 print(";".join([f"{key}={val}" for key, val in kwargs.items()]))
 
@@ -81,7 +81,7 @@ class TestWorkGroup:
 
         assert (
             out
-            == "ImplementedWork\nparam1=1;param2=ab\nImplementedWork\nparam1=2;param2=bc\n"
+            == "ImplementedWork\nparam1=1;param2=ab;__before__=Ellipsis\nImplementedWork\nparam1=2;param2=bc;__before__=Ellipsis\n"
         )
 
     @staticmethod
@@ -91,19 +91,19 @@ class TestWorkGroup:
         class ImplementedWork1(AbstractWork):
             """ImplementedWork1"""
 
-            def __call__(self, **kwargs):
+            def __work__(self, **kwargs):
                 print(type(self).__name__)
 
         class ImplementedWork2(AbstractWork):
             """ImplementedWork2"""
 
-            def __call__(self, **kwargs):
+            def __work__(self, **kwargs):
                 print(type(self).__name__)
 
         class ImplementedWork3(AbstractWork):
             """ImplementedWork3"""
 
-            def __call__(self, **kwargs):
+            def __work__(self, **kwargs):
                 print(type(self).__name__)
 
         wl = WorkList()
@@ -128,19 +128,19 @@ class TestWorkGroupExecute:
         class ImplementedWork1(AbstractWork):
             """ImplementedWork1"""
 
-            def __call__(self, **kwargs):
+            def __work__(self, **kwargs):
                 print(type(self).__name__)
 
         class ImplementedWork2(AbstractWork):
             """ImplementedWork2"""
 
-            def __call__(self, **kwargs):
+            def __work__(self, **kwargs):
                 print(type(self).__name__)
 
         class ImplementedWork3(AbstractWork):
             """ImplementedWork3"""
 
-            def __call__(self, **kwargs):
+            def __work__(self, **kwargs):
                 print(type(self).__name__)
 
         wl = WorkList()
@@ -168,7 +168,7 @@ class TestWorkList:
         class ImplementedWork(AbstractWork):
             """ImplementedWork"""
 
-            def __call__(self, **kwargs):
+            def __work__(self, **kwargs):
                 print(type(self).__name__)
 
         wl = WorkList()
