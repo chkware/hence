@@ -1,15 +1,20 @@
 """..."""
 
-from hence import work
+from hence import work, WorkGroup, WorkList, WorkExecFrame
 
 
-@work("run", pass_work=True, pass_works=True, pass_context=True)
-def something(s: str = None, *args, **kwargs):
-    """something"""
+def test__a_thing():
+    def other():
+        return "Name"
 
-    print(s or "something", args, kwargs)
+    @work(before=other)
+    def something(s: str = None, **kwargs):
+        """something"""
 
+        print(s or "something", kwargs)
 
-something()
-print("---------")
-something("Hasan", 23, "some some", aida="ty")
+    work_grp = WorkGroup(
+        WorkList([WorkExecFrame(function=something, function_params={"s": "Hasan"})])
+    )
+
+    work_grp.execute_dag()

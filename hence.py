@@ -260,6 +260,11 @@ class Workflow(DagExecutor):
 class LinearExecutor:
     """Linear executor"""
 
+    def __init__(self) -> None:
+        """init LinearExecutor"""
+
+        self._results = {}
+
     def param(self, vertex: Any) -> Any:
         """Selecting parameters"""
 
@@ -269,8 +274,16 @@ class LinearExecutor:
         """Execute"""
 
         if isinstance(__work, WorkExecFrame) and callable(__work.function):
+            __work.function_params["__results__"] = self._results
             return __work.function(**__work.function_params)
         elif isinstance(__work, WorkGroup):
             return __work.execute_dag()
         else:
             raise TypeError(f"Incorrect type of `work` {type(__work)} found.")
+
+    def report_finish(self, vertices_result):
+        """After execution finished"""
+
+        for vertex, result in vertices_result:
+            print(type(vertex))
+            self._results[vertex.function.__name__] = result
