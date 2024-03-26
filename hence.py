@@ -206,7 +206,7 @@ class DagExecutor:
 class WorkGroup(DagExecutor):
     """Collection of Work"""
 
-    def __init__(self, works: WorkList = None) -> None:
+    def __init__(self, works: WorkList) -> None:
         """Constructor"""
 
         super().__init__()
