@@ -164,8 +164,10 @@ class AbstractWork(ABC):
 
     def __call__(self, **kwargs):
         kwargs["__before__"] = self.__before__()
-        self.__work__(**kwargs)
+        returnable = self.__work__(**kwargs)
         self.__after__()
+
+        return returnable
 
 
 class DagExecutor:
