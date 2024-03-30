@@ -302,7 +302,7 @@ class LinearExecutor:
         """Execute"""
 
         if isinstance(__work, WorkExecFrame) and callable(__work.function):
-            return __work.function(**__work.function_params)
+            return __work.run()
         elif isinstance(__work, WorkGroup):
             return __work.execute_dag()
         else:
