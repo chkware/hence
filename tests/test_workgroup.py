@@ -64,12 +64,12 @@ class TestWorkGroup:
                     WorkExecFrame(
                         title="ImplementedWork",
                         function=ImplementedWork(),
-                        func_params={"param1": 1, "param2": "ab"},
+                        function_params={"param1": 1, "param2": "ab"},
                     ),
                     WorkExecFrame(
                         title="ImplementedWork",
                         function=ImplementedWork(),
-                        func_params={"param1": 2, "param2": "bc"},
+                        function_params={"param1": 2, "param2": "bc"},
                     ),
                 ]
             )
@@ -218,7 +218,9 @@ class TestWorkList:
 
         wl = WorkList()
         wl.append(
-            WorkExecFrame(function=print_s, func_params={"string": print_s.__name__})
+            WorkExecFrame(
+                function=print_s, function_params={"string": print_s.__name__}
+            )
         )
 
         wg = WorkGroup(wl)

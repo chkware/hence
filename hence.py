@@ -23,7 +23,7 @@ class WorkExecFrame:
         id_: str = "",
         title: str = "",
         function: Callable = lambda: ...,
-        func_params: Optional[dict] = None,
+        function_params: Optional[dict] = None,
     ) -> None:
         """Create WorkExecFrame"""
 
@@ -47,7 +47,7 @@ class WorkExecFrame:
         else:
             self._function_type = FunctionType
 
-        self.function_params = func_params if func_params else {}
+        self.function_params = function_params if function_params else {}
         self.function_out = ""
 
     @property
