@@ -16,13 +16,21 @@ from paradag import DAG, SequentialProcessor, dag_run
 class WorkExecFrame:
     """WorkFrame holds what goes inside works"""
 
+    OUT_KEY = "_result"
+
     def __init__(
         self,
+        id_: str = "",
         title: str = "",
         function: Callable = lambda: ...,
-        function_params: Optional[dict] = None,
+        func_params: Optional[dict] = None,
     ) -> None:
         """Create WorkExecFrame"""
+
+        if not isinstance(id_, str):
+            raise TypeError("String value expected for id_.")
+
+        self._id = id_
 
         if not isinstance(title, str):
             raise TypeError("String value expected for title.")
@@ -34,12 +42,13 @@ class WorkExecFrame:
 
         self._function: Callable = function
 
-        if function_params and not isinstance(function_params, dict):
-            raise TypeError("Function params must be a dict.")
+        if isinstance(self._function, AbstractWork):
+            self._function_type = AbstractWork
+        else:
+            self._function_type = FunctionType
 
-        self._function_params: str = dumps(function_params if function_params else {})
-
-        self._function_out: str = dumps({})
+        self.function_params = func_params if func_params else {}
+        self.function_out = ""
 
     @property
     def function(self) -> Callable:
@@ -53,11 +62,35 @@ class WorkExecFrame:
 
         return loads(self._function_params)
 
+    @function_params.setter
+    def function_params(self, val: dict) -> None:
+        """get the function"""
+
+        if not isinstance(val, dict):
+            raise TypeError("Function params must be a dict.")
+
+        self._function_params = dumps(val)
+
     @property
     def function_out(self) -> dict:
         """get the function output"""
 
-        return loads(self._function_out)
+        return loads(self._function_out).get(self.OUT_KEY, {})
+
+    @function_out.setter
+    def function_out(self, val: Any) -> None:
+        """function_out setter"""
+
+        self._function_out = dumps({self.OUT_KEY: val})
+
+    def run(self, **kwargs):
+        """run the function and save the result to output"""
+
+        if len(kwargs) > 0 and not isinstance(kwargs, dict):
+            raise TypeError("Function params must be a dict.")
+
+        params = self.function_params | kwargs
+        self.function_out = self.function(**params)
 
 
 class WorkList(UserList):
