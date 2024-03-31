@@ -27,7 +27,7 @@ class TestWorkFlowExecute:
         class ImplementedWork(AbstractWork):
             """ImplementedWork"""
 
-            def __call__(self, **kwargs):
+            def __work__(self, **kwargs):
                 print(type(self).__name__)
 
         wf = Workflow(
@@ -68,25 +68,25 @@ class TestWorkFlowExecute:
         class ImplementedWork1(AbstractWork):
             """ImplementedWork1"""
 
-            def __call__(self, **kwargs):
+            def __work__(self, **kwargs):
                 print(1)
 
         class ImplementedWork2(AbstractWork):
             """ImplementedWork2"""
 
-            def __call__(self, **kwargs):
+            def __work__(self, **kwargs):
                 print(2)
 
         class ImplementedWork3(AbstractWork):
             """ImplementedWork3"""
 
-            def __call__(self, **kwargs):
+            def __work__(self, **kwargs):
                 print(3)
 
         class ImplementedWork4(AbstractWork):
             """ImplementedWork4"""
 
-            def __call__(self, **kwargs):
+            def __work__(self, **kwargs):
                 print(4)
 
         wl1 = WorkList()

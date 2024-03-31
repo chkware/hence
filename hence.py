@@ -16,13 +16,21 @@ from paradag import DAG, SequentialProcessor, dag_run
 class WorkExecFrame:
     """WorkFrame holds what goes inside works"""
 
+    OUT_KEY = "_result"
+
     def __init__(
         self,
+        id_: str = "",
         title: str = "",
         function: Callable = lambda: ...,
         function_params: Optional[dict] = None,
     ) -> None:
         """Create WorkExecFrame"""
+
+        if not isinstance(id_, str):
+            raise TypeError("String value expected for id_.")
+
+        self._id = id_
 
         if not isinstance(title, str):
             raise TypeError("String value expected for title.")
@@ -34,12 +42,19 @@ class WorkExecFrame:
 
         self._function: Callable = function
 
-        if function_params and not isinstance(function_params, dict):
-            raise TypeError("Function params must be a dict.")
+        if isinstance(self._function, AbstractWork):
+            self._function_type = AbstractWork
+        else:
+            self._function_type = FunctionType
 
-        self._function_params: str = dumps(function_params if function_params else {})
+        self.function_params = function_params if function_params else {}
+        self.function_out = ""
 
-        self._function_out: str = dumps({})
+    @property
+    def id(self) -> str:
+        """get the id"""
+
+        return self._id
 
     @property
     def function(self) -> Callable:
@@ -53,11 +68,37 @@ class WorkExecFrame:
 
         return loads(self._function_params)
 
+    @function_params.setter
+    def function_params(self, val: dict) -> None:
+        """get the function"""
+
+        if not isinstance(val, dict):
+            raise TypeError("Function params must be a dict.")
+
+        self._function_params = dumps(val)
+
     @property
     def function_out(self) -> dict:
         """get the function output"""
 
-        return loads(self._function_out)
+        return loads(self._function_out).get(self.OUT_KEY, {})
+
+    @function_out.setter
+    def function_out(self, val: Any) -> None:
+        """function_out setter"""
+
+        self._function_out = dumps({self.OUT_KEY: val})
+
+    def run(self, **kwargs):
+        """run the function and save the result to output"""
+
+        if len(kwargs) > 0 and not isinstance(kwargs, dict):
+            raise TypeError("Function params must be a dict.")
+
+        params = self.function_params | kwargs
+        self.function_out = self.function(**params)
+
+        return self.function_out
 
 
 class WorkList(UserList):
@@ -93,10 +134,10 @@ class WorkList(UserList):
 
         if (
             isinstance(value.function, AbstractWork)
-            and "kwargs" not in value.function.__call__.__code__.co_varnames
+            and "kwargs" not in value.function.__work__.__code__.co_varnames
         ):
             raise TypeError(
-                f"Missing {type(value.function).__name__}.__call__(..., **kwargs)."
+                f"Missing {type(value.function).__name__}.__work__(..., **kwargs)."
             )
 
         if (
@@ -146,11 +187,28 @@ class AbstractWork(ABC):
 
         self._name = type(self).__name__
 
+    def __before__(self) -> Any:
+        """default before impl"""
+
+        return Ellipsis
+
+    def __after__(self) -> Any:
+        """default after impl"""
+
+        return Ellipsis
+
     @abstractmethod
-    def __call__(self, **kwargs):
+    def __work__(self, **kwargs):
         "Force implement function"
 
-        raise NotImplementedError("Not a callable. __call__ not implemented.")
+        raise NotImplementedError("__work__ not implemented.")
+
+    def __call__(self, **kwargs):
+        kwargs["__before__"] = self.__before__()
+        returnable = self.__work__(**kwargs)
+        self.__after__()
+
+        return returnable
 
 
 class DagExecutor:
@@ -191,7 +249,7 @@ class DagExecutor:
 class WorkGroup(DagExecutor):
     """Collection of Work"""
 
-    def __init__(self, works: WorkList = None) -> None:
+    def __init__(self, works: WorkList) -> None:
         """Constructor"""
 
         super().__init__()
@@ -243,6 +301,13 @@ class Workflow(DagExecutor):
 class LinearExecutor:
     """Linear executor"""
 
+    RES_KEY = "__works__"
+
+    def __init__(self) -> None:
+        """init LinearExecutor"""
+
+        self._results = {}
+
     def param(self, vertex: Any) -> Any:
         """Selecting parameters"""
 
@@ -252,8 +317,15 @@ class LinearExecutor:
         """Execute"""
 
         if isinstance(__work, WorkExecFrame) and callable(__work.function):
-            return __work.function(**__work.function_params)
+            return __work.run(**{self.RES_KEY: self._results})
         elif isinstance(__work, WorkGroup):
             return __work.execute_dag()
         else:
             raise TypeError(f"Incorrect type of `work` {type(__work)} found.")
+
+    def report_finish(self, vertices_result):
+        """After execution finished"""
+
+        for vertex, result in vertices_result:
+            if not isinstance(vertex, WorkGroup) and len(vertex.id) > 0:
+                self._results[vertex.id] = result
