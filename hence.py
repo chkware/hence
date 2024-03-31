@@ -327,5 +327,5 @@ class LinearExecutor:
         """After execution finished"""
 
         for vertex, result in vertices_result:
-            if len(vertex.id) > 0:
+            if not isinstance(vertex, WorkGroup) and len(vertex.id) > 0:
                 self._results[vertex.id] = result
