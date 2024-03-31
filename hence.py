@@ -51,6 +51,12 @@ class WorkExecFrame:
         self.function_out = ""
 
     @property
+    def id(self) -> str:
+        """get the id"""
+
+        return self._id
+
+    @property
     def function(self) -> Callable:
         """get the function"""
 
