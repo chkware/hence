@@ -98,6 +98,8 @@ class WorkExecFrame:
         params = self.function_params | kwargs
         self.function_out = self.function(**params)
 
+        return self.function_out
+
 
 class WorkList(UserList):
     """WorkList"""
