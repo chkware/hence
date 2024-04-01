@@ -26,6 +26,8 @@ See [sample usage](./tests/samples/) code here.
 
 This software use Pipenv for development. Therefore please [install Pipenv](https://pipenv.pypa.io/en/latest/installation.html#installing-pipenv) it beforehand.
 
+- First clone the repository to your local work directory
+
 - To install the development setup
 
     ```shell
@@ -35,7 +37,7 @@ This software use Pipenv for development. Therefore please [install Pipenv](http
 - To run a example script
 
     ```shell
-    pipenv run python example/[SCRIPT_NAME].py
+    pipenv run python -m pytest tests/samples/[SCRIPT_NAME].py
     ```
 
 ### Testing
