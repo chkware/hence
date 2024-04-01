@@ -8,6 +8,8 @@ Welcome to Hence, a powerful framework designed to streamline your workflow orch
 
 Read [Features and Use-cases](./docs/features-and-use-cases.md) document
 
+See [sample usage](./tests/samples/) code here.
+
 ## Setup
 
 ### Using as a package
