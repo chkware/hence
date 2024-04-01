@@ -1,0 +1,30 @@
+[project]
+name = "hench"
+version = "0.1.0"
+authors = [
+  { name="Mahmudul Hasan", email="hasanlock@gmail.com" },
+]
+description = "Hence, a powerful framework designed to streamline data pipeline, scraping, automation workflow orchestration."
+readme = "README.md"
+requires-python = ">=3.11"
+license = {file = "LICENSE"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Utilities",
+]
+
+[project.urls]
+Homepage = "https://github.com/chkware/hence"
+Issues = "https://github.com/chkware/hence/issues"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["hence"]
