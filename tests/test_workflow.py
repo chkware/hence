@@ -1,5 +1,5 @@
 """
-Hench tests Workflow
+Hence tests Workflow
 """
 
 from hence import WorkList, Workflow, WorkGroup, AbstractWork, WorkExecFrame

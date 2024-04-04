@@ -1,17 +1,6 @@
 """Work context test"""
 
-from contextvars import ContextVar
-import inspect
-
-import pytest
-
-from hence import WorkList, WorkExecFrame, work
-
-
-@pytest.fixture
-def make_context():
-    """make and return a context"""
-    return ContextVar("context", default=WorkList())
+from hence import work
 
 
 class TestWorkDecorator:
@@ -23,7 +12,7 @@ class TestWorkDecorator:
 
         @work()
         def task_one(**kwargs):
-            print(inspect.currentframe().f_code.co_name)
+            print(task_one.__name__)
 
         task_one()
         out, _ = capsys.readouterr()
@@ -82,3 +71,16 @@ class TestWorkDecorator:
         task_one(ae=1, af=2, g=[3, 4, 5], a=1)
         out, _ = capsys.readouterr()
         assert out.strip() == "1 2 1 {'g': [3, 4, 5], '__before__': 'before_'}"
+
+    @staticmethod
+    def test__works_dec__pass_returns_value():
+        """test__works_dec__pass_returns_value"""
+
+        def before_():
+            return "before_"
+
+        @work(before=before_)
+        def task_one(**kwargs):
+            return kwargs["ae"]
+
+        assert task_one(ae=1) == 1

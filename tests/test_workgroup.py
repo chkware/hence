@@ -203,7 +203,7 @@ class TestWorkGroupExecute:
             assert wef.function_out != ""
 
     @staticmethod
-    def test__execute_wg__pass_function_params_get_other_state_results(capsys):
+    def test__execute_wg__pass_callable_params_get_other_state_results(capsys):
         """test__execute_wg__pass_function_params_get_other_state_results"""
 
         class ImplementedWork1(AbstractWork):
@@ -259,6 +259,69 @@ class TestWorkGroupExecute:
 
         assert out == (
             """ImplementedWork1 kwargs: {'as': 2, 'of': 'date0', '__works__': {}, '__before__': Ellipsis}\nImplementedWork2 kwargs: {'as': 2, 'of': 'date1', '__works__': {'Work1': 'ImplementedWork1'}, '__before__': Ellipsis}\nImplementedWork3 kwargs: {'as': 2, 'of': 'date2', '__works__': {'Work1': 'ImplementedWork1', 'Work2': 'ImplementedWork2'}, '__before__': Ellipsis}\n"""
+        )
+        assert len(resp) == 3
+
+        for wef in resp:
+            assert wef.function_out != ""
+
+    @staticmethod
+    def test__execute_wg__pass_function_params_get_other_state_results(capsys):
+        """test__execute_wg__pass_function_params_get_other_state_results"""
+
+        @work()
+        def implemented_work1(**kwargs):
+            """implemented_work1"""
+
+            print("implemented_work1 kwargs:", kwargs)
+            return implemented_work1.__name__
+
+        @work()
+        def implemented_work2(**kwargs):
+            """implemented_work2"""
+
+            print("implemented_work2 kwargs:", kwargs)
+            return implemented_work2.__name__
+
+        @work()
+        def implemented_work3(**kwargs):
+            """implemented_work3"""
+
+            print("implemented_work3 kwargs:", kwargs)
+            return implemented_work3.__name__
+
+        wl = WorkList()
+
+        wl.append(
+            WorkExecFrame(
+                id_="Work1",
+                function=implemented_work1,
+                function_params={"as": 2, "of": "date0"},
+            )
+        )
+        wl.append(
+            WorkExecFrame(
+                id_="Work2",
+                function=implemented_work2,
+                function_params={"as": 2, "of": "date1"},
+            )
+        )
+        wl.append(
+            WorkExecFrame(
+                id_="Work3",
+                function=implemented_work3,
+                function_params={"as": 2, "of": "date2"},
+            )
+        )
+
+        wg = WorkGroup(WorkList(wl))
+
+        resp = wg.execute_dag()
+
+        out, _ = capsys.readouterr()
+
+        assert out == (
+            """implemented_work1 kwargs: {'as': 2, 'of': 'date0', '__works__': {}, '__before__': Ellipsis}\nimplemented_work2 kwargs: {'as': 2, 'of': 'date1', '__works__': {'Work1': 'implemented_work1'}, '__before__': Ellipsis}\nimplemented_work3 kwargs: {'as': 2, 'of': 'date2', '__works__': {'Work1': 'implemented_work1', 'Work2': 'implemented_work2'}, '__before__': Ellipsis}\n"""
         )
         assert len(resp) == 3
 

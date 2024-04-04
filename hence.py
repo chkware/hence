@@ -1,5 +1,5 @@
 """
-Hench
+Hence
 """
 
 from __future__ import annotations
@@ -166,13 +166,10 @@ def work(
             """decorator"""
 
             kwargs["__before__"] = before()
-
-            # kwargs["__works__"] = "pass_works"
-            # kwargs["__context__"] = "pass_context"
-
-            func(**kwargs)
-
+            returnable = func(**kwargs)
             after()
+
+            return returnable
 
         return decorator
 
