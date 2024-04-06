@@ -22,8 +22,8 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/chkware/hence"
-Issues = "https://github.com/chkware/hence/issues"
+Homepage = "https://github.com/0hsn/hence"
+Issues = "https://github.com/0hsn/hence/issues"
 
 [build-system]
 requires = ["setuptools>=61.0"]

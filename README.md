@@ -17,7 +17,7 @@ See [sample usage](./tests/samples/) code here.
 ## Contributions
 
 - Read [CONTRIBUTING](./docs/CONTRIBUTING) document before you contribute.
-- [Create issues](https://github.com/chkware/hence/issues) for any questions or request
+- [Create issues](https://github.com/0hsn/hence/issues) for any questions or request
 
 ---
-Licensed under [AGPL-3.0](./LICENSE) | Follow [@chkware](https://twitter.com/chkware) on Twitter
+Licensed under [AGPL-3.0](./LICENSE)

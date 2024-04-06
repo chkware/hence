@@ -5,7 +5,7 @@
 - To use Hence as python package just run
 
     ```shell
-    pip install -U git+https://github.com/chkware/hence.git@main
+    pip install -U git+https://github.com/0hsn/hence.git@main
     ```
 
     > I intent to keep `main` branch stable. I will also release stable tags. Therefore, anyone should be able to install from a specific tag.
