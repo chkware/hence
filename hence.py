@@ -231,7 +231,7 @@ class DagExecutor:
             self._dag.add_edge(self.vertices[index - 1], self.vertices[index])
 
     @final
-    def execute_dag(self) -> list[Any]:
+    def execute_dag(self) -> list[DagExecutor]:
         """Execute the dag"""
 
         resp = dag_run(
