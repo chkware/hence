@@ -3,7 +3,7 @@ Hence
 """
 
 from __future__ import annotations
-from abc import ABC, abstractmethod, abstractproperty
+from abc import ABC, abstractmethod
 from collections import UserList
 from functools import wraps
 from json import loads, dumps
@@ -217,7 +217,7 @@ class DagExecutor:
         self._dag = DAG()
 
     @property
-    @abstractproperty
+    @abstractmethod
     def vertices(self) -> list[Any]:
         """Get unit_of_works"""
 
