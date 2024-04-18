@@ -303,7 +303,7 @@ class Workflow(DagExecutor):
     def __init__(self, work_groups: list[WorkGroup] = None) -> None:
         """Constructor"""
 
-        super().__init__()
+        super().__init__(DagExecutionType.PARALLEL)
 
         self._name = type(self).__name__
 
