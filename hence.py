@@ -3,14 +3,15 @@ Hence
 """
 
 from __future__ import annotations
-from abc import ABC, abstractmethod, abstractproperty
+from abc import ABC, abstractmethod
 from collections import UserList
+import enum
 from functools import wraps
 from json import loads, dumps
 from types import FunctionType
-from typing import Any, Callable, Optional, final
+from typing import Any, Callable, final
 
-from paradag import DAG, SequentialProcessor, dag_run
+from paradag import DAG, SequentialProcessor, MultiThreadProcessor, dag_run
 
 
 class WorkExecFrame:
@@ -23,7 +24,7 @@ class WorkExecFrame:
         id_: str = "",
         title: str = "",
         function: Callable = lambda: ...,
-        function_params: Optional[dict] = None,
+        function_params: dict = None,
     ) -> None:
         """Create WorkExecFrame"""
 
@@ -208,18 +209,49 @@ class AbstractWork(ABC):
         return returnable
 
 
+class DagExecutionType(enum.IntEnum):
+    """Dag execution type
+
+    Args:
+        enum (Sequential): Select for sequential processing
+        enum (Parallel): Select for parallel processing
+    """
+
+    SEQUENTIAL = 0
+    PARALLEL = 1
+
+
+ProcessorType = SequentialProcessor | MultiThreadProcessor
+"""Processor type: paradag.SequentialProcessor or paradag.MultiThreadProcessor"""
+
+
 class DagExecutor:
     """DagExecutor"""
 
-    def __init__(self) -> None:
+    def __init__(self, proc: DagExecutionType = DagExecutionType.SEQUENTIAL) -> None:
         """DagExecutor constructor"""
 
         self._dag = DAG()
 
+        if not isinstance(proc, DagExecutionType):
+            raise ValueError("Unsupported dag execution type")
+
+        self._processor = (
+            SequentialProcessor()
+            if proc == DagExecutionType.SEQUENTIAL
+            else MultiThreadProcessor()
+        )
+
     @property
-    @abstractproperty
+    @abstractmethod
     def vertices(self) -> list[Any]:
         """Get unit_of_works"""
+
+    @property
+    def processor(self) -> ProcessorType:
+        """Get the processor"""
+
+        return self._processor
 
     @final
     def setup_dag(self) -> bool:
@@ -231,12 +263,12 @@ class DagExecutor:
             self._dag.add_edge(self.vertices[index - 1], self.vertices[index])
 
     @final
-    def execute_dag(self) -> list[Any]:
+    def execute_dag(self) -> list[DagExecutor]:
         """Execute the dag"""
 
         resp = dag_run(
             self._dag,
-            processor=SequentialProcessor(),
+            processor=self.processor,
             executor=LinearExecutor(),
         )
 
@@ -271,7 +303,7 @@ class Workflow(DagExecutor):
     def __init__(self, work_groups: list[WorkGroup] = None) -> None:
         """Constructor"""
 
-        super().__init__()
+        super().__init__(DagExecutionType.PARALLEL)
 
         self._name = type(self).__name__
 
