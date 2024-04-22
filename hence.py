@@ -14,6 +14,24 @@ from typing import Any, Callable, final
 from paradag import DAG, SequentialProcessor, MultiThreadProcessor, dag_run
 
 
+def get_step_out(args: dict, step_name: str) -> Any:
+    """Gets step's returned output"""
+
+    if not args or not isinstance(args, dict):
+        raise TypeError("`args` is malformed.")
+
+    if not step_name or not isinstance(step_name, str):
+        raise TypeError("`step_name` is malformed.")
+
+    if "__works__" not in args:
+        raise TypeError("`args.__works__` do not exists.")
+
+    if step_name not in args["__works__"]:
+        raise TypeError(f"`{step_name}` not found in `args.__works__`.")
+
+    return args["__works__"][step_name]
+
+
 class WorkExecFrame:
     """WorkFrame holds what goes inside works"""
 
