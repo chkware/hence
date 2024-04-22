@@ -10,7 +10,7 @@
 import csv
 from urllib import request
 
-from hence import work, WorkGroup, WorkList, WorkExecFrame
+from hence import work, WorkGroup, WorkList, WorkExecFrame, get_step_out
 
 
 @work()
@@ -25,7 +25,7 @@ def fetch_content(**kwargs) -> str:
 def get_the_title(**kwargs) -> dict:
     """Parse the content in <title>"""
 
-    html = kwargs.get("__works__")["fetch_content"]
+    html = get_step_out(kwargs, "fetch_content")
     html = bytes.fromhex(html).decode("utf-8")
 
     html.find("<h1>")
@@ -39,7 +39,7 @@ def get_the_title(**kwargs) -> dict:
 def save_to_csv(**kwargs) -> str:
     """save the content to csv"""
 
-    ret = kwargs.get("__works__")["get_the_title"]
+    ret = get_step_out(kwargs, "get_the_title")
 
     with open("example.org-data.csv", "w+", encoding="utf-8") as csv_file:
         writer = csv.writer(csv_file)
