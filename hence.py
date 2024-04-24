@@ -311,13 +311,11 @@ class WorkGroup(DagExecutor):
     def vertices(self) -> WorkList:
         return self._works if self._works else WorkList()
 
-    @final
     def append(self, wef: WorkExecFrame) -> bool:
         """Append a WorkExecFrame to the Workgroup"""
 
         self._works.append(self._validate_type(wef))
 
-    @final
     def _validate_type(self, value):
         """Validate values before appending"""
 
