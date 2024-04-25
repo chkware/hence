@@ -2,7 +2,7 @@
 Hence tests Workflow
 """
 
-from hence import WorkList, Workflow, WorkGroup, AbstractWork, WorkExecFrame
+from hence import Workflow, WorkGroup, AbstractWork, WorkExecFrame
 
 
 class TestWorkflow:
@@ -30,9 +30,7 @@ class TestWorkFlowExecute:
             def __work__(self, **kwargs):
                 print(type(self).__name__)
 
-        wf = Workflow(
-            [WorkGroup(WorkList([WorkExecFrame(function=ImplementedWork())]))]
-        )
+        wf = Workflow([WorkGroup([WorkExecFrame(function=ImplementedWork())])])
 
         wf.execute_dag()
 
@@ -43,7 +41,7 @@ class TestWorkFlowExecute:
     def test__wf_execute_pass__when_wg_empty(capsys):
         """test__wf_execute_pass__when_wg_empty"""
 
-        wf = Workflow([WorkGroup(WorkList())])
+        wf = Workflow([WorkGroup([])])
 
         wf.execute_dag()
 
@@ -112,7 +110,7 @@ class TestWorkFlowExecute:
         assert out == "1\n2\n3\n4\n"
 
     @staticmethod
-    def test__wf_execute_pass__when_wg_do_not_share_session_data(capsys):
+    def test__wf_execute_pass__when_wg_do_not_share_session_data():
         """test__wf_execute_pass__when_wg_do_not_share_session_data"""
 
         class ImplementedWork1(AbstractWork):

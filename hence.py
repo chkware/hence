@@ -120,54 +120,6 @@ class WorkExecFrame:
         return self.function_out
 
 
-class WorkList(UserList):
-    """WorkList"""
-
-    def __init__(self, iterable: list = None):
-        """Create"""
-        if iterable is None:
-            iterable = []
-
-        super().__init__(self._validate_type(item) for item in iterable)
-
-    def __setitem__(self, index, item):
-        """Overload set [] to support setting"""
-
-        super().__setitem__(index, self._validate_type(item))
-
-    def append(self, item):
-        """Overload append to support append"""
-
-        super().append(self._validate_type(item))
-
-    def _validate_type(self, value):
-        """Validate values before setting"""
-
-        if not isinstance(value, (WorkExecFrame)):
-            raise TypeError(f"WorkExecFrame expected, got {type(value).__name__}.")
-
-        if not isinstance(value.function, (AbstractWork, FunctionType)):
-            raise TypeError(
-                f"Function of type AbstractWork or FunctionType expected, got {type(value).__name__}."
-            )
-
-        if (
-            isinstance(value.function, AbstractWork)
-            and "kwargs" not in value.function.__work__.__code__.co_varnames
-        ):
-            raise TypeError(
-                f"Missing {type(value.function).__name__}.__work__(..., **kwargs)."
-            )
-
-        if (
-            isinstance(value.function, FunctionType)
-            and value.function.__code__.co_name != "decorator"
-        ):
-            raise TypeError("Unsupported work found. @work() decorated expected.")
-
-        return value
-
-
 def work(
     before: Callable = lambda: ...,
     after: Callable = lambda: ...,
