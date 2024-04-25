@@ -11,8 +11,8 @@ class TestWorkGroup:
     """TestTask"""
 
     @staticmethod
-    def test__create_wg__pass_with_steps_set():
-        """test create work group pass with steps set"""
+    def test__create_wg__pass_for_list_of_work_exec_frames():
+        """test  create wg  pass for list of work exec frames"""
 
         class ImplementedWork(AbstractWork):
             """ImplementedWork"""
@@ -20,14 +20,28 @@ class TestWorkGroup:
             def __work__(self, **kwargs):
                 print(type(self).__name__)
 
-        wl = WorkList()
-        wl.append(WorkExecFrame(function=ImplementedWork()))
-        wl.append(WorkExecFrame(function=ImplementedWork()))
-
-        wg = WorkGroup(wl)
+        wg = WorkGroup(
+            [
+                WorkExecFrame(function=ImplementedWork()),
+                WorkExecFrame(function=ImplementedWork()),
+                WorkExecFrame(function=ImplementedWork()),
+            ]
+        )
 
         assert isinstance(wg, WorkGroup)
-        assert wg._name == "WorkGroup"
+        assert len(wg.vertices) == 3
+
+        for item in wg.vertices:
+            assert isinstance(item, WorkExecFrame)
+
+    @staticmethod
+    def test__create_wg__pass_for_empty_list_of_work_exec_frames():
+        """test  create wg  pass for empty list of work exec frames"""
+
+        wg = WorkGroup([])
+
+        assert isinstance(wg, WorkGroup)
+        assert len(wg.vertices) == 0
 
     @staticmethod
     def test__create_wg__fail_when_wrong_step_set():
@@ -40,12 +54,7 @@ class TestWorkGroup:
                 print(type(self).__name__)
 
         with pytest.raises(TypeError):
-            WorkGroup(
-                [
-                    ImplementedWork(),
-                    map,
-                ]
-            )
+            WorkGroup([ImplementedWork()])
 
     @staticmethod
     def test__create_wg__pass_with_work_list_params(capsys):
@@ -59,20 +68,18 @@ class TestWorkGroup:
                 print(";".join([f"{key}={val}" for key, val in kwargs.items()]))
 
         wg = WorkGroup(
-            WorkList(
-                [
-                    WorkExecFrame(
-                        title="ImplementedWork",
-                        function=ImplementedWork(),
-                        function_params={"param1": 1, "param2": "ab"},
-                    ),
-                    WorkExecFrame(
-                        title="ImplementedWork",
-                        function=ImplementedWork(),
-                        function_params={"param1": 2, "param2": "bc"},
-                    ),
-                ]
-            )
+            [
+                WorkExecFrame(
+                    title="ImplementedWork",
+                    function=ImplementedWork(),
+                    function_params={"param1": 1, "param2": "ab"},
+                ),
+                WorkExecFrame(
+                    title="ImplementedWork",
+                    function=ImplementedWork(),
+                    function_params={"param1": 2, "param2": "bc"},
+                ),
+            ]
         )
 
         wg.execute_dag()
@@ -106,13 +113,13 @@ class TestWorkGroup:
             def __work__(self, **kwargs):
                 print(type(self).__name__)
 
-        wl = WorkList()
+        wg = WorkGroup([])
 
-        wl.append(WorkExecFrame(function=ImplementedWork1()))
-        wl.append(WorkExecFrame(function=ImplementedWork2()))
-        wl.append(WorkExecFrame(function=ImplementedWork3()))
+        wg.append(WorkExecFrame(function=ImplementedWork1()))
+        wg.append(WorkExecFrame(function=ImplementedWork2()))
+        wg.append(WorkExecFrame(function=ImplementedWork3()))
 
-        wg = WorkGroup(wl)
+        wg.setup_dag()
 
         assert wg._dag.vertex_size() == 3
         assert wg._dag.edge_size() == 2
@@ -143,13 +150,15 @@ class TestWorkGroupExecute:
             def __work__(self, **kwargs):
                 print(type(self).__name__)
 
-        wl = WorkList()
+        wg = WorkGroup(
+            [
+                WorkExecFrame(function=ImplementedWork1()),
+                WorkExecFrame(function=ImplementedWork2()),
+                WorkExecFrame(function=ImplementedWork3()),
+            ]
+        )
 
-        wl.append(WorkExecFrame(function=ImplementedWork1()))
-        wl.append(WorkExecFrame(function=ImplementedWork2()))
-        wl.append(WorkExecFrame(function=ImplementedWork3()))
-
-        wg = WorkGroup(WorkList(wl))
+        wg.setup_dag()
 
         resp = wg.execute_dag()
         out, _ = capsys.readouterr()
@@ -182,13 +191,15 @@ class TestWorkGroupExecute:
                 print("ImplementedWork3 kwargs:", kwargs)
                 return type(self).__name__
 
-        wl = WorkList()
+        wg = WorkGroup(
+            [
+                WorkExecFrame(id_="Work1", function=ImplementedWork1()),
+                WorkExecFrame(id_="Work2", function=ImplementedWork2()),
+                WorkExecFrame(id_="Work3", function=ImplementedWork3()),
+            ]
+        )
 
-        wl.append(WorkExecFrame(id_="Work1", function=ImplementedWork1()))
-        wl.append(WorkExecFrame(id_="Work2", function=ImplementedWork2()))
-        wl.append(WorkExecFrame(id_="Work3", function=ImplementedWork3()))
-
-        wg = WorkGroup(WorkList(wl))
+        wg.setup_dag()
 
         resp = wg.execute_dag()
 
@@ -227,23 +238,23 @@ class TestWorkGroupExecute:
                 print("ImplementedWork3 kwargs:", kwargs)
                 return type(self).__name__
 
-        wl = WorkList()
+        wg = WorkGroup([])
 
-        wl.append(
+        wg.append(
             WorkExecFrame(
                 id_="Work1",
                 function=ImplementedWork1(),
                 function_params={"as": 2, "of": "date0"},
             )
         )
-        wl.append(
+        wg.append(
             WorkExecFrame(
                 id_="Work2",
                 function=ImplementedWork2(),
                 function_params={"as": 2, "of": "date1"},
             )
         )
-        wl.append(
+        wg.append(
             WorkExecFrame(
                 id_="Work3",
                 function=ImplementedWork3(),
@@ -251,7 +262,7 @@ class TestWorkGroupExecute:
             )
         )
 
-        wg = WorkGroup(WorkList(wl))
+        wg.setup_dag()
 
         resp = wg.execute_dag()
 
@@ -290,23 +301,23 @@ class TestWorkGroupExecute:
             print("implemented_work3 kwargs:", kwargs)
             return implemented_work3.__name__
 
-        wl = WorkList()
+        wg = WorkGroup([])
 
-        wl.append(
+        wg.append(
             WorkExecFrame(
                 id_="Work1",
                 function=implemented_work1,
                 function_params={"as": 2, "of": "date0"},
             )
         )
-        wl.append(
+        wg.append(
             WorkExecFrame(
                 id_="Work2",
                 function=implemented_work2,
                 function_params={"as": 2, "of": "date1"},
             )
         )
-        wl.append(
+        wg.append(
             WorkExecFrame(
                 id_="Work3",
                 function=implemented_work3,
@@ -314,7 +325,7 @@ class TestWorkGroupExecute:
             )
         )
 
-        wg = WorkGroup(WorkList(wl))
+        wg.setup_dag()
 
         resp = wg.execute_dag()
 

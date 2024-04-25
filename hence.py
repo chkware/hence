@@ -303,13 +303,16 @@ class WorkGroup(DagExecutor):
 
         self._name = type(self).__name__
 
-        self._works = list(map(self.append, wef_list))
+        self._works = []
 
-        self.setup_dag()
+        list(map(self.append, wef_list))
+
+        if self._works:
+            self.setup_dag()
 
     @property
-    def vertices(self) -> WorkList:
-        return self._works if self._works else WorkList()
+    def vertices(self) -> list[WorkExecFrame]:
+        return self._works if self._works else []
 
     def append(self, wef: WorkExecFrame) -> bool:
         """Append a WorkExecFrame to the Workgroup"""
