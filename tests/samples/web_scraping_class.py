@@ -10,7 +10,7 @@
 import csv
 from urllib import request
 
-from hence import AbstractWork, WorkGroup, WorkList, WorkExecFrame, get_step_out
+from hence import AbstractWork, WorkGroup, WorkExecFrame, get_step_out
 
 
 class FetchContent(AbstractWork):
@@ -58,13 +58,11 @@ def test_main():
     """main"""
 
     grp = WorkGroup(
-        WorkList(
-            [
-                WorkExecFrame(id_="fetch_content", function=FetchContent()),
-                WorkExecFrame(id_="get_the_title", function=GetTheTitle()),
-                WorkExecFrame(id_="save_to_csv", function=SaveToCsv()),
-            ]
-        )
+        [
+            WorkExecFrame(id_="fetch_content", function=FetchContent()),
+            WorkExecFrame(id_="get_the_title", function=GetTheTitle()),
+            WorkExecFrame(id_="save_to_csv", function=SaveToCsv()),
+        ]
     )
 
     grp.execute_dag()

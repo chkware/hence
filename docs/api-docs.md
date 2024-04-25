@@ -1,18 +1,18 @@
 # API Docs
 
 - [Work](#work)
-    - [Defining a work](#defining-a-work)
-    - [Work with `before` and `after` hook](#work-with-before-and-after-hook)
-    - [Access returned values from `before` hook in _work_](#access-returned-values-from-before-hook-in-work)
-    - [Calling a work](#calling-a-work)
+  - [Defining a work](#defining-a-work)
+  - [Work with `before` and `after` hook](#work-with-before-and-after-hook)
+  - [Access returned values from `before` hook in _work_](#access-returned-values-from-before-hook-in-work)
+  - [Calling a work](#calling-a-work)
 - [WorkExecFrame](#workexecframe)
-    - [Defining a WorkExecFrame](#defining-a-workexecframe)
-    - [Passing parameter to a Work via WorkExecFrame](#passing-parameter-to-a-work-via-workexecframe)
-    - [Execute a WorkExecFrame](#execute-a-workexecframe)
-    - [Access a WorkExecFrame output](#access-a-workexecframe-output)
-- [WorkGroup and WorkList](#workgroup-and-worklist)
-    - [Using a WorkGroup and WorkList](#using-a-workgroup-and-worklist)
-    - [Accessing previous step data in runtime](#accessing-previous-step-data-in-runtime)
+  - [Defining a WorkExecFrame](#defining-a-workexecframe)
+  - [Passing parameter to a Work via WorkExecFrame](#passing-parameter-to-a-work-via-workexecframe)
+  - [Execute a WorkExecFrame](#execute-a-workexecframe)
+  - [Access a WorkExecFrame output](#access-a-workexecframe-output)
+- [WorkGroup](#workgroup)
+  - [Using a WorkGroup](#using-a-workgroup)
+  - [Accessing previous step data in runtime](#accessing-previous-step-data-in-runtime)
 - [WorkFlow](#workflow)
 
 ## Work
@@ -143,7 +143,7 @@ sum()
 
 ## WorkExecFrame
 
-WorkExecFrame is a reactor for a Work. WorkExecFrame holds a work, execute it, store what the work producted as output. 
+WorkExecFrame is a reactor for a Work. WorkExecFrame holds a work, execute it, store what the work producted as output.
 
 ### Defining a WorkExecFrame
 
@@ -239,13 +239,11 @@ assert wef.function_out == 1
 
 > Please remember the values DO NOT get saved in `WorkExecFrame.function_out` in safe way. Therefore marshalling and unmarhalling lies on the users hand. For example, in [tests/samples/web_scraping.py](../tests/samples/web_scraping.py) see how `fetch_content` and `get_the_title` does marshalling and unmarhalling. Suggestion and discussion is alway invited to improve this behavior.
 
-## WorkGroup and WorkList
+## WorkGroup
 
-_WorkList_ is simply a collection of _WorkExecFrame_. It holds a series of _WorkExecFrame_ to be executed on after another, as a DAG.
+_WorkGroup_ is to make a group out of a collection of _WorkExecFrame_. _WorkGroup_ is the basic building block of work orchestration. _WorkGroup_ is capable of executing each _WorkExecFrame_ that is added to it.
 
-_WorkGroup_ is to make a group out of a collection of _WorkExecFrame_. _WorkGroup_ is the basic building block of work orchestration. _WorkList_ get added to _WorkGroup_. _WorkGroup_ is capable of executing each _WorkExecFrame_ that is added in _WorkList_. e.g.
-
-### Using a WorkGroup and WorkList
+### Using a WorkGroup
 
 ```python
 @work()
@@ -260,7 +258,7 @@ def implemented_work2(**kwargs):
 def implemented_work3(**kwargs):
     return implemented_work3.__name__
 
-wl = WorkList()
+wl = []
 
 wl.append(
     WorkExecFrame(
@@ -281,11 +279,13 @@ wl.append(
     )
 )
 
-wg = WorkGroup(WorkList(wl))
+wg = WorkGroup(wl)
+
+wg.setup_dag()
 wg.execute_dag()
 ```
 
-`WorkGroup.execute_dag()` returns a _WorkList_ that contains all the _WorkExecFrame_ with execution results, can be accessible with `WorkExecFrame.function_out`.
+`WorkGroup.execute_dag()` returns a list that contains all the _WorkExecFrame_ with execution results, can be accessible with `WorkExecFrame.function_out`.
 
 ### Accessing previous step data in runtime
 
@@ -304,7 +304,7 @@ def implemented_work2(**kwargs):
 def implemented_work3(**kwargs):
     return kwargs.get("__works__")["two"] + 1
 
-wl = WorkList()
+wl = []
 
 wl.append(
     WorkExecFrame(
@@ -327,7 +327,9 @@ wl.append(
     )
 )
 
-wg = WorkGroup(WorkList(wl))
+wg = WorkGroup(wl)
+
+wg.setup_dag()
 wg.execute_dag()
 ```
 
@@ -356,11 +358,11 @@ class ImplementedWork4(AbstractWork):
     def __work__(self, **kwargs):
         print(4)
 
-wl1 = WorkList()
+wl1 = []
 wl1.append(WorkExecFrame(function=ImplementedWork1()))
 wl1.append(WorkExecFrame(function=ImplementedWork2()))
 
-wl2 = WorkList()
+wl2 = []
 wl2.append(WorkExecFrame(function=ImplementedWork3()))
 wl2.append(WorkExecFrame(function=ImplementedWork4()))
 
@@ -372,4 +374,4 @@ wf = Workflow([
 wf.execute_dag()
 ```
 
-In the end to summerize: _WorkFlow_ holds a list of _WorkGroup_ objects. _WorkGroup_ holds _WorkList_. _WorkList_ holds a list of _WorkExecFrame_. _WorkExecFrame_ holds a function, its paramters and after execution output.
+In the end to summarize: _WorkFlow_ holds a list of _WorkGroup_ objects. _WorkGroup_ holds a list of _WorkExecFrame_. _WorkExecFrame_ holds a function, its parameters and output after execution.

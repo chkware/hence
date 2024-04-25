@@ -120,54 +120,6 @@ class WorkExecFrame:
         return self.function_out
 
 
-class WorkList(UserList):
-    """WorkList"""
-
-    def __init__(self, iterable: list = None):
-        """Create"""
-        if iterable is None:
-            iterable = []
-
-        super().__init__(self._validate_type(item) for item in iterable)
-
-    def __setitem__(self, index, item):
-        """Overload set [] to support setting"""
-
-        super().__setitem__(index, self._validate_type(item))
-
-    def append(self, item):
-        """Overload append to support append"""
-
-        super().append(self._validate_type(item))
-
-    def _validate_type(self, value):
-        """Validate values before setting"""
-
-        if not isinstance(value, (WorkExecFrame)):
-            raise TypeError(f"WorkExecFrame expected, got {type(value).__name__}.")
-
-        if not isinstance(value.function, (AbstractWork, FunctionType)):
-            raise TypeError(
-                f"Function of type AbstractWork or FunctionType expected, got {type(value).__name__}."
-            )
-
-        if (
-            isinstance(value.function, AbstractWork)
-            and "kwargs" not in value.function.__work__.__code__.co_varnames
-        ):
-            raise TypeError(
-                f"Missing {type(value.function).__name__}.__work__(..., **kwargs)."
-            )
-
-        if (
-            isinstance(value.function, FunctionType)
-            and value.function.__code__.co_name != "decorator"
-        ):
-            raise TypeError("Unsupported work found. @work() decorated expected.")
-
-        return value
-
-
 def work(
     before: Callable = lambda: ...,
     after: Callable = lambda: ...,
@@ -296,23 +248,55 @@ class DagExecutor:
 class WorkGroup(DagExecutor):
     """Collection of Work"""
 
-    def __init__(self, works: WorkList) -> None:
+    def __init__(self, wef_list: list[WorkExecFrame]) -> None:
         """Constructor"""
 
         super().__init__()
 
         self._name = type(self).__name__
 
-        if not isinstance(works, WorkList):
-            raise TypeError("Type mismatch for `works`. WorkList expected.")
+        self._works = []
 
-        self._works: WorkList = works
+        list(map(self.append, wef_list))
 
-        self.setup_dag()
+        if self._works:
+            self.setup_dag()
 
     @property
-    def vertices(self) -> WorkList:
-        return self._works if self._works else WorkList()
+    def vertices(self) -> list[WorkExecFrame]:
+        return self._works if self._works else []
+
+    def append(self, wef: WorkExecFrame) -> bool:
+        """Append a WorkExecFrame to the Workgroup"""
+
+        self._works.append(self._validate_type(wef))
+
+    def _validate_type(self, value):
+        """Validate values before appending"""
+
+        if not isinstance(value, WorkExecFrame):
+            raise TypeError(f"WorkExecFrame expected, got {type(value).__name__}.")
+
+        if not isinstance(value.function, (AbstractWork, FunctionType)):
+            raise TypeError(
+                f"Function of type AbstractWork or FunctionType expected, got {type(value).__name__}."
+            )
+
+        if (
+            isinstance(value.function, AbstractWork)
+            and "kwargs" not in value.function.__work__.__code__.co_varnames
+        ):
+            raise TypeError(
+                f"Missing {type(value.function).__name__}.__work__(..., **kwargs)."
+            )
+
+        if (
+            isinstance(value.function, FunctionType)
+            and value.function.__code__.co_name != "decorator"
+        ):
+            raise TypeError("Unsupported work found. @work() decorated expected.")
+
+        return value
 
 
 class Workflow(DagExecutor):
