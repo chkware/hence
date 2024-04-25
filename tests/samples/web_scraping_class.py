@@ -58,13 +58,11 @@ def test_main():
     """main"""
 
     grp = WorkGroup(
-        WorkList(
-            [
-                WorkExecFrame(id_="fetch_content", function=FetchContent()),
-                WorkExecFrame(id_="get_the_title", function=GetTheTitle()),
-                WorkExecFrame(id_="save_to_csv", function=SaveToCsv()),
-            ]
-        )
+        [
+            WorkExecFrame(id_="fetch_content", function=FetchContent()),
+            WorkExecFrame(id_="get_the_title", function=GetTheTitle()),
+            WorkExecFrame(id_="save_to_csv", function=SaveToCsv()),
+        ]
     )
 
     grp.execute_dag()
