@@ -1,75 +1,97 @@
-# Alter-Impl
+# Alternative Implementation
 
 An alternative implementation that is more congnative friendly. Less things to learn.
 
 
-### IDEA 1
+### IDEA
 
 ```python
-@task(index=0)
-def fn_1():
+@task(title="")
+def fn_1(**kwargs):
   ...
 
-@task(index=1)
-def fn_2():
+@task(title="", needs=[fn_1])
+def fn_2(**kwargs):
   ...
 
 # run all the tasks
-run_tasks()
+run_tasks([
+  fn_1,
+  fn_2,
+])
 ```
 
-### IDEA 2
-
 ```python
-@task(start=True)
-def fn_1():
+a_task_group = group("group_for_a_task")
+
+@a_task_group
+@task(title="")
+def fn_1(**kwargs):
   ...
 
-@task(depends_on=fn_1)
-def fn_2():
+@a_task_group
+@task(title="", needs=[fn_1])
+def fn_2(**kwargs):
+  ...
+
+run_task_groups([
+  a_task_group,
+])
+
+```
+
+```python
+a_task_group = group("group_for_a_task")
+
+# `needs` means this task depends on given list of groups to executed before
+# all the task groups listed to be executed parallely
+b_task_group = group("group_for_b_task", needs=[a_task_group, ])
+
+
+@a_task_group
+@task(title="")
+def fn_1(**kwargs):
+  ...
+
+@a_task_group
+@task(title="", needs=[fn_1])
+def fn_2(**kwargs):
   ...
 
 # run all the tasks
-run_tasks()
+run_tasks([
+  fn_1,
+  fn_2,
+])
+
+run_task_groups([
+  b_task_group,
+])
+
+# this will run a_task_group twice
+run_task_groups([
+  a_task_group,
+  b_task_group,
+])
 ```
-
-### IDEA : Group
-
-@group(id="group2")
 
 ```python
-@group(id="group1")
-@task(start=True)
-def fn_1():
+@task(title="")
+def fn_1(**kwargs):
   ...
 
-@group(id="group1")
-@task()
-def fn_2():
+# `needs` means this task depends on given list of task to executed before
+# all the task listed to be executed parallely
+@task(title="", needs=[fn_1])
+def fn_2(**kwargs):
   ...
 
-@group(id="group2")
-@task()
-def fn_3():
-  ...
 
-@group(id="group2")
-@task()
-def fn_4():
-  ...
+# `tasks` means list of tasks in the group
+# all the task listed to be executed sequencially
+a_task_group = group("group_for_a_task", tasks=[fn_1, fn_2])
 
-# run all the tasks
-run_tasks("group1")
-run_tasks(["group1", "group2"])
-```
-
-```yml
-task:
-  start: bool; only one occurrence
-  depends_on: function handle
-  before: hook before
-  after: hook after
-  if: precondition to execute this function
-group: 
-  id: name of a group the task belongs to
+run_task_groups([
+  a_task_group,
+])
 ```
