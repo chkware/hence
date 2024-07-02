@@ -3,7 +3,9 @@
 An alternative implementation that is more congnative friendly. Less things to learn.
 
 
-### IDEA
+## IDEA
+
+### Run tasks with no params
 
 ```python
 @task(title="")
@@ -15,11 +17,14 @@ def fn_2(**kwargs):
   ...
 
 # run all the tasks
+# - with no params to pass to tasks
 run_tasks([
-  fn_1,
-  fn_2,
+  {fn_1, {}},
+  {fn_2, {}},
 ])
 ```
+
+### Run tasks as a groups (ex 1)
 
 ```python
 a_task_group = group("group_for_a_task")
@@ -38,6 +43,30 @@ run_task_groups([
   a_task_group,
 ])
 ```
+
+### Run tasks as a groups (ex 2)
+```python
+@task(title="")
+def fn_1(**kwargs):
+  ...
+
+# `needs` means this task depends on given list of task to executed before
+# all the task listed to be executed parallely
+@task(title="", needs=[fn_1])
+def fn_2(**kwargs):
+  ...
+
+
+# `tasks` means list of tasks in the group
+# all the task listed to be executed sequencially
+a_task_group = group("group_for_a_task", tasks=[fn_1, fn_2])
+
+run_task_groups([
+  a_task_group,
+])
+```
+
+### Run tasks as a dependent groups (ex 1)
 
 ```python
 a_task_group = group("group_for_a_task")
@@ -62,6 +91,7 @@ run_task_groups([
 ])
 ```
 
+### Run tasks as a dependent groups (ex 2)
 ```python
 a_task_group = group("group_for_a_task")
 
@@ -84,26 +114,5 @@ def fn_2(**kwargs):
 run_task_groups([
   a_task_group,
   b_task_group,
-])
-```
-
-```python
-@task(title="")
-def fn_1(**kwargs):
-  ...
-
-# `needs` means this task depends on given list of task to executed before
-# all the task listed to be executed parallely
-@task(title="", needs=[fn_1])
-def fn_2(**kwargs):
-  ...
-
-
-# `tasks` means list of tasks in the group
-# all the task listed to be executed sequencially
-a_task_group = group("group_for_a_task", tasks=[fn_1, fn_2])
-
-run_task_groups([
-  a_task_group,
 ])
 ```
