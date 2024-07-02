@@ -37,7 +37,6 @@ def fn_2(**kwargs):
 run_task_groups([
   a_task_group,
 ])
-
 ```
 
 ```python
@@ -58,15 +57,28 @@ def fn_1(**kwargs):
 def fn_2(**kwargs):
   ...
 
-# run all the tasks
-run_tasks([
-  fn_1,
-  fn_2,
-])
-
 run_task_groups([
   b_task_group,
 ])
+```
+
+```python
+a_task_group = group("group_for_a_task")
+
+# `needs` means this task depends on given list of groups to executed before
+# all the task groups listed to be executed parallely
+b_task_group = group("group_for_b_task", needs=[a_task_group, ])
+
+
+@a_task_group
+@task(title="")
+def fn_1(**kwargs):
+  ...
+
+@a_task_group
+@task(title="", needs=[fn_1])
+def fn_2(**kwargs):
+  ...
 
 # this will run a_task_group twice
 run_task_groups([
